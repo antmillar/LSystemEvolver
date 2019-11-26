@@ -70,7 +70,7 @@ public class Main : MonoBehaviour {
         Encoder encoder = new Encoder();
         string target = encoder.Encode(TextureNoise.CreateNoise(width, height, r));
         Fitness fitness = new Fitness(target);
-        Population population = new Population(20, fitness._targetString) { _name = "images" };
+        Population population = new Population(20, fitness._target) { _name = "images" };
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
         Mutation mutation = new Mutation(mutateType);

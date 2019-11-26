@@ -7,8 +7,16 @@ public class Genome {
 	public string genome;
 	private float mutateRate;
 
-	//constructor for first random genotype by length
-	public Genome(int length, int randomSeed){
+    //constructor for genome from parent phenotype
+    public Genome(string parentGenome)
+    {
+
+        genome = parentGenome;
+        genes = parentGenome.ToCharArray();
+
+    }
+    //constructor for first random genotype by length
+    public Genome(int length, int randomSeed){
 
 		genes = new char[length];
         GenerateRandomGenome(length, randomSeed);
@@ -29,13 +37,6 @@ public class Genome {
         genome = new string(genes);
     }
 
-	//constructor for genome from parent phenotype
-	public Genome(string parentGenome){
-		
-		genome = parentGenome;
-		genes = parentGenome.ToCharArray ();
-
-	}
 
 	public int Fitness(string targetString){
 

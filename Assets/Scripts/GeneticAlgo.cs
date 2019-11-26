@@ -59,21 +59,36 @@ public class Population
 
     public bool _variableGenomeLength;
 
-    public Population(int size, string targetString, Boolean variableGenomeLength = false)
+    public Population(int size, string target, string[] samplePopulation = null, bool variableGenomeLength = false)
     {
         _size = size;
-        Seed(targetString);
+        _genomes = new Genome[_size];
+
+        if (samplePopulation != null) {
+            SeedFromSamples(samplePopulation);
+        }
+        else {
+            SeedRandom(target);
+        }
     }
 
     //creates first generation
-    public void Seed(string targetString)
+    public void SeedRandom(string target)
     {
-        _genomes = new Genome[_size];
-        System.Random randomInt = new System.Random();
+        System.Random randomInt = new System.Random(); //for random seed for the genome
 
         for (int i = 0; i < _size; i++)
         {
-            _genomes[i] = new Genome(targetString.Length, randomInt.Next());
+            _genomes[i] = new Genome(target.Length, randomInt.Next());
+        }
+        _generation++;
+    }
+
+    public void SeedFromSamples(string[] samplePopulation)
+    {
+        for (int i = 0; i < _size; i++)
+        {
+            _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]); //adds samples to the population loops around the samples
         }
         _generation++;
     }
@@ -82,11 +97,11 @@ public class Population
 
 public class Fitness
 { 
-    public string _targetString;
+    public string _target;
 
-    public Fitness (string targetString)
+    public Fitness (string target)
     {
-        _targetString = targetString;
+        _target = target;
     }
 
     public void Apply(Population p)
@@ -114,7 +129,7 @@ public class Fitness
         for (int i = 0; i < g.genes.Length; i++)
         {
 
-            if (g.genes[i] == _targetString[i])
+            if (g.genes[i] == _target[i])
             {
                 fitness++;
             }
@@ -186,7 +201,7 @@ public class Selection
         switch (_selectionType)
         {
 
-            //this is when the user chooses after each generation the best candidates
+            //this is when the user interactively chooses after each generation the best candidates
             case "god mode":
 
                 Debug.Log("Please choose the candidates selected to be the parents");
@@ -471,10 +486,10 @@ public class GeneticAlgo
     {
         //should i save each generation in the population object
         
-        //targetstring is blank (if selection type is user, don't need a target eh?
+        //target is blank (if selection type is user, don't need a target eh?
         //make genome more generic, and specifiable
 
-        //currently the targetstring is defining the length of the seeded genomes. That's not ideal.
+        //currently the target is defining the length of the seeded genomes. That's not ideal.
 
         //I should specify the seeding information in the encoder....
 
