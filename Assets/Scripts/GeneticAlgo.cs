@@ -57,7 +57,9 @@ public class Population
     public Genome[] _genomes;
     public int[] _fitnesses;
 
-    public Population(int size, string targetString)
+    public bool _variableGenomeLength;
+
+    public Population(int size, string targetString, Boolean variableGenomeLength = false)
     {
         _size = size;
         Seed(targetString);
@@ -287,16 +289,19 @@ public class CrossOver
             p._genomes[i] = new Genome(selectionStack.Pop().genome);
             p._genomes[i + 1] = new Genome(selectionStack.Pop().genome);
             //evolve them
-            Cross(p._genomes[i], p._genomes[i + 1]);
+            Cross(p._genomes[i], p._genomes[i + 1], p._variableGenomeLength);
 
         }
     }
 
     //takes two genomes as input and mutates them
-    public void Cross(Genome p1, Genome p2)
+    public void Cross(Genome p1, Genome p2, bool variableGenomeLength)
     {
+        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length); //1st crossover pt on first genome
+        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length); //1st crossover pt on second genome
 
-        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length);
+        if (!variableGenomeLength) yPt1 = xPt1; //if all genomes the same length, use the same 1st crossover pt
+
         string crossedString1, crossedString2;
 
         switch (_crossoverType)
@@ -304,10 +309,10 @@ public class CrossOver
             //cuts the genotype at one point and swaps genes
             case "OnePt":
 
-                crossedString1 = p1.genome.Substring(0, xPt1) + p2.genome.Substring(xPt1);
+                crossedString1 = p1.genome.Substring(0, xPt1) + p2.genome.Substring(yPt1);
                 p1 = new Genome(crossedString1);
 
-                crossedString2 = p2.genome.Substring(0, xPt1) + p1.genome.Substring(xPt1);
+                crossedString2 = p2.genome.Substring(0, yPt1) + p1.genome.Substring(xPt1);
                 p2 = new Genome(crossedString2);
 
                 break;
@@ -315,20 +320,23 @@ public class CrossOver
             //cuts the genotype at two points and swaps genes
             case "TwoPt":
 
-                int xPt2 = UnityEngine.Random.Range(0, p1.genome.Length);
+                int xPt2 = UnityEngine.Random.Range(0, p1.genome.Length); //2nd crossover pt on first genome
+                int yPt2 = UnityEngine.Random.Range(0, p2.genome.Length); //2nd crossover pt on first genome
 
-                if (xPt1 <= xPt2)
-                {
-                    crossedString1 = p1.genome.Substring(0, xPt1) + p2.genome.Substring(xPt1, xPt2 - xPt1) + p1.genome.Substring(xPt2);
-                    crossedString2 = p2.genome.Substring(0, xPt1) + p1.genome.Substring(xPt1, xPt2 - xPt1) + p2.genome.Substring(xPt2);
-                }
-                else
-                {
-                    crossedString1 = p2.genome.Substring(0, xPt2) + p1.genome.Substring(xPt2, xPt1 - xPt2) + p2.genome.Substring(xPt1);
-                    crossedString2 = p1.genome.Substring(0, xPt2) + p2.genome.Substring(xPt2, xPt1 - xPt2) + p1.genome.Substring(xPt1);
-                }
+                if (!variableGenomeLength) yPt2 = xPt2; //if all genomes the same length, use the same 2nd crossover pt
+
+                int xmin = Math.Min(xPt1, xPt2);
+                int xmax = Math.Max(xPt1, xPt2);
+
+                int ymin = Math.Min(yPt1, yPt2);
+                int ymax = Math.Max(yPt1, yPt2);
+
+                crossedString1 = p1.genome.Substring(0, xmin) + p2.genome.Substring(ymin, ymax - ymin) + p1.genome.Substring(xmax);
+                crossedString2 = p2.genome.Substring(0, ymin) + p1.genome.Substring(xmin, xmax - xmin) + p2.genome.Substring(ymax);
+       
                 p1 = new Genome(crossedString1);
                 p2 = new Genome(crossedString2);
+
                 break;
 
             //swaps genes by index depending on the swap rate
@@ -338,9 +346,10 @@ public class CrossOver
                 char[] chars1 = p1.genome.ToCharArray();
                 char[] chars2 = p2.genome.ToCharArray();
 
-                for (int i = 0; i < p1.genome.Length; i++)
-                {
+                int minLength = Math.Min(chars1.Length, chars2.Length); //only swaps up till the end of shortest genome
 
+                for (int i = 0; i < minLength; i++)
+                { 
                     //if under swapRate swap genes at index
                     if (UnityEngine.Random.Range(0f, 1f) < swapRate)
                     {
@@ -372,7 +381,7 @@ public class Mutation
         for (int i = 0; i < p._size; i += 1)
         {
 
-            //evolve them
+            //mutate them
             Mutate(p._genomes[i], 0.1f);
             p._genomes[i] = p._genomes[i];
 

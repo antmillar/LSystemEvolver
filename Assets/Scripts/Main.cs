@@ -65,7 +65,7 @@ public class Main : MonoBehaviour {
 
         string selectType = "god mode";
         string mutateType = "randomChoice";
-        string crossType = "OnePt";
+        string crossType = "Uniform";
 
         Encoder encoder = new Encoder();
         string target = encoder.Encode(TextureNoise.CreateNoise(width, height, r));
