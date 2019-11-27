@@ -42,7 +42,8 @@ public class GraphController : MonoBehaviour {
             GameObject newGO = new GameObject("TextCaption" + i.ToString());
             Text myText = newGO.AddComponent<Text>();
             myText.color = Color.white;
-            myText.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+            myText.font = Resources.Load<Font>("Fonts/UnicaOne-Regular");
+
             myText.horizontalOverflow = HorizontalWrapMode.Overflow;
             myText.rectTransform.sizeDelta = rawImages[i].rectTransform.sizeDelta;
             newGO.transform.SetParent(GameObject.Find("Canvas").GetComponent<Canvas>().transform);
@@ -75,7 +76,7 @@ public class GraphController : MonoBehaviour {
             meshFilters[i].mesh = mesh;
             Vector3 bnds = mesh.bounds.size;
             float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-            meshFilters[i].transform.localScale = Vector3.one / ( 2 * maxBound);
+            meshFilters[i].transform.localScale = Vector3.one / ( maxBound);
   
             //encodes the chosen lsystem to a genome
  
@@ -139,8 +140,10 @@ public class GraphController : MonoBehaviour {
             Vector3 firstVertex = mesh.vertices[0];
             Vector3 translation = mesh.bounds.center - firstVertex;
             float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
+            Debug.Log(mesh.bounds.center);
+            //GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.Translate(mesh.bounds.center);
             //GameObject.Find("cam" + i.ToString()).GetComponent<Transform>().transform.position = GameObject.Find("obj" + i.ToString()).GetComponent<Transform>().transform.position - mesh.bounds.center + new Vector3(0,0,-1);
-            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.localScale = Vector3.one / (2 * maxBound);
+            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.localScale = Vector3.one / (maxBound);
 
             GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimen);
         }
@@ -151,13 +154,13 @@ public class GraphController : MonoBehaviour {
         geneticAlgo.NextGeneration(inputSelection.text);
         Debug.Log("GENERATION : " + geneticAlgo.Population._generation.ToString());
         DisplayPhenotypes(5);
-        textGeneration.text = "Generation #" + geneticAlgo.Population._generation.ToString();
-
+        textGeneration.text = "GENERATION : " + geneticAlgo.Population._generation.ToString();
     }
 
     public void OnClickImage(string rawSelectionNum)
     {
         inputSelection.text = rawSelectionNum.Substring(3).ToString() + " " + inputSelection.text;
+        Debug.Log(inputSelection.text);
         CheckInputCount();
     }
 
@@ -166,6 +169,8 @@ public class GraphController : MonoBehaviour {
         string[] inputs = inputSelection.text.Split(' ');
         string[] checkedInputs = inputs.Length > 5 ? inputs.Take(5).ToArray() : inputs;
         inputSelection.text = string.Join(" ", checkedInputs);
+
+        Debug.Log(inputSelection.text);
     }
 
     // Update is called once per frame
