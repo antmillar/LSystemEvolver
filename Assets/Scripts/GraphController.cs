@@ -11,13 +11,18 @@ public class GraphController : MonoBehaviour {
     RuleSet[] rulesets;
     MeshFilter[] meshFilters;
     InputField inputSelection;
+    RawImage[] rawImages;
+    Text textGeneration;
 
     GeneticAlgo geneticAlgo;
 
     private void Start () {
 
+        textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
+        material = new Material(Shader.Find("Sprites/Default"));
         inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
         string systemchoice = gameObject.GetComponent<Text>().text;
+        rawImages = GetComponentsInChildren<RawImage>();
 
         InitialiseDB.Initialise();
 
@@ -32,8 +37,13 @@ public class GraphController : MonoBehaviour {
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < 5; i++)
         {
+            rawImages[i].gameObject.AddComponent<Button>();
+            Button btn = rawImages[i].gameObject.GetComponent<Button>();
+            string txt = rawImages[i].gameObject.name;
+            btn.onClick.AddListener(() => OnClickImage(txt));
+
             Debug.Log("System " + i.ToString());
-            var rsTest = systemsJSON["0"];
+            var rsTest = systemsJSON[(i % 3).ToString()];
             rulesets[i] = rsTest;
             //create L system
             LSystem ls = new LSystem(rsTest._axiom, 4, rsTest);
@@ -47,6 +57,8 @@ public class GraphController : MonoBehaviour {
 
             meshFilters[i] = GameObject.Find("obj" + i.ToString()).AddComponent<MeshFilter>();
             meshFilters[i].gameObject.AddComponent<MeshRenderer>();
+
+            meshFilters[i].gameObject.GetComponent<Renderer>().material = material;
             Mesh mesh = turtle._finalMesh;
             meshFilters[i].mesh = mesh;
             Vector3 bnds = mesh.bounds.size;
@@ -123,6 +135,20 @@ public class GraphController : MonoBehaviour {
         geneticAlgo.NextGeneration(inputSelection.text);
         Debug.Log("GENERATION : " + geneticAlgo.Population._generation.ToString());
         DisplayPhenotypes(5);
+        textGeneration.text = "Generation #" + geneticAlgo.Population._generation.ToString();
+    }
+
+    public void OnClickImage(string rawSelectionNum)
+    {
+        inputSelection.text = rawSelectionNum.Substring(3).ToString() + " " + inputSelection.text;
+        CheckInputCount();
+    }
+
+    public void CheckInputCount()
+    {
+        string[] inputs = inputSelection.text.Split(' ');
+        string[] checkedInputs = inputs.Length > 5 ? inputs.Take(5).ToArray() : inputs;
+        inputSelection.text = string.Join(" ", checkedInputs);
     }
 
     // Update is called once per frame
