@@ -20,7 +20,7 @@ public class Genome {
     public Genome(int length, int randomSeed){
 
 		genes = new char[length];
-        geneCount = 10; //hard coded HACKY!
+        geneCount = 8; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 

@@ -8,7 +8,7 @@ public class LSystem
     private string _axiom;
     private string _generatedString;
     private int _numIterations;
-    private RuleSet _ruleSet;
+    public RuleSet _ruleSet;
     public LSystem(string axiom, int numIterations, RuleSet rs)
     {
         _axiom = axiom;

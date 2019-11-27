@@ -12,41 +12,41 @@ interface IEncoder<T>
 }
 
 //converts from a Color to string based genome
-public class Encoder : IEncoder<Color>
-{
-    public string Encode(Color[] pixels)
-    {
-        char[] chars = new char[pixels.Length];
+//public class userEncoder : IEncoder<Color>
+//{
+//    public string Encode(Color[] pixels)
+//    {
+//        char[] chars = new char[pixels.Length];
 
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            chars[i] = (char)(pixels[i].r * 10 + 97);
-        }
+//        for (int i = 0; i < pixels.Length; i++)
+//        {
+//            chars[i] = (char)(pixels[i].r * 10 + 97);
+//        }
 
-        string output = new string(chars);
+//        string output = new string(chars);
 
-        Debug.Log("encoded string is " + output);
+//        Debug.Log("encoded string is " + output);
 
-        return output;
-    }
+//        return output;
+//    }
 
-    public Color[] Decode(string genomeString)
-    {
-        Color[] colors = new Color[genomeString.Length];
-        char[] chars = genomeString.ToCharArray();
+//    public Color[] Decode(string genomeString)
+//    {
+//        Color[] colors = new Color[genomeString.Length];
+//        char[] chars = genomeString.ToCharArray();
 
-        for (int i = 0; i < genomeString.Length; i++)
-        {
-            float colorW = (chars[i] - 97) / 10f;
-            colors[i] = new Color(colorW, colorW, colorW);
-        }
+//        for (int i = 0; i < genomeString.Length; i++)
+//        {
+//            float colorW = (chars[i] - 97) / 10f;
+//            colors[i] = new Color(colorW, colorW, colorW);
+//        }
 
-        return colors;
-    }
-}
+//        return colors;
+//    }
+//}
 
 //converts from a LSystem to string based genome
-public class LEncoder : IEncoder<string>
+public class Encoder : IEncoder<string>
 {
     public string Encode(string[] rule)
     {
@@ -97,7 +97,7 @@ public class Population
 
     public bool _variableGenomeLength;
 
-    public Population(int size, string target, string[] samplePopulation = null, bool variableGenomeLength = false)
+    public Population(int size, string target = "", string[] samplePopulation = null, bool variableGenomeLength = false)
     {
         _size = size;
         _genomes = new Genome[_size];
@@ -331,6 +331,9 @@ public class CrossOver
 
     public void Apply(Population p, List<Genome> selectionPool)
     {
+        //population has to be even number currently......
+        //because the population size is driving the selectionPool size
+        //must be a multipleo of 5 if using selection curreltly....
         p._genomes = new Genome[p._size];
         Stack<Genome> selectionStack = new Stack<Genome>(selectionPool);
 
@@ -459,7 +462,7 @@ public class Mutation
                     if (UnityEngine.Random.Range(0f, 1f) < mutationRate)
                     {
 
-                        int randomChoice = UnityEngine.Random.Range(97, 122);
+                        int randomChoice = UnityEngine.Random.Range(97, 97 + p1.geneCount);
                         p1.genes[i] = (char)(randomChoice);
 
                     }
@@ -477,7 +480,7 @@ public class Mutation
                     {
 
                         int intLetter = Convert.ToInt32(p1.genes[i]);
-                        intLetter = ((intLetter + 1) - 97) % (122 - 97);
+                        intLetter = ((intLetter + 1) - 97) % (p1.geneCount - 97);
                         p1.genes[i] = (char)(intLetter + 97);
                     }
                 }
