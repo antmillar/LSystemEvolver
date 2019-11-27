@@ -71,7 +71,7 @@ public class Encoder : IEncoder<string>
         string reducedLetters = "Ff-+|!\"";
         string[] rule = new string[genomeString.Length];
         char[] chars = genomeString.ToCharArray();
-
+        Debug.Log(genomeString);
         for (int i = 0; i < genomeString.Length; i++)
         {
             int index = (chars[i] - 97);
@@ -353,8 +353,8 @@ public class CrossOver
     //takes two genomes as input and mutates them
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength)
     {
-        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length); //1st crossover pt on first genome
-        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length); //1st crossover pt on second genome
+        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length - 1 ); //1st crossover pt on first genome
+        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length - 1); //1st crossover pt on second genome
 
         if (!variableGenomeLength) yPt1 = xPt1; //if all genomes the same length, use the same 1st crossover pt
 
@@ -426,10 +426,12 @@ public class CrossOver
 public class Mutation
 {
     public string _mutationType;
+    float _mutationRate;
 
-    public Mutation(string mutationType)
+    public Mutation(string mutationType, float mutationRate = 0.1f)
     {
         _mutationType = mutationType;
+        _mutationRate = mutationRate;
     }
 
     public void Apply(Population p)
@@ -438,7 +440,8 @@ public class Mutation
         {
 
             //mutate them
-            Mutate(p._genomes[i], 0.1f);
+            System.Random seed = new System.Random(i);
+            Mutate(p._genomes[i], seed);
             p._genomes[i] = p._genomes[i];
 
         }
@@ -447,7 +450,7 @@ public class Mutation
     }
 
     //takes genome as input and mutates it
-    public void Mutate(Genome p1, float mutationRate)
+    public void Mutate(Genome p1, System.Random seed)
     {
 
         switch (_mutationType)
@@ -458,13 +461,16 @@ public class Mutation
 
                 for (int i = 0; i < p1.genes.Length; i++)
                 {
+                    System.Random r = new System.Random(seed.Next());
                     //mutates based on the mutationRate
-                    if (UnityEngine.Random.Range(0f, 1f) < mutationRate)
+                    if (r.NextDouble() < _mutationRate)
                     {
 
-                        int randomChoice = UnityEngine.Random.Range(97, 97 + p1.geneCount);
+                        Debug.Log("Mutate!");
+                        int randomChoice = r.Next(97, 97 + p1.geneCount);
                         p1.genes[i] = (char)(randomChoice);
 
+                        Debug.Log((char)randomChoice);
                     }
                 }
        
@@ -476,9 +482,8 @@ public class Mutation
                 for (int i = 0; i < p1.genes.Length; i++)
                 {
                     //mutates based on the mutationRate
-                    if (UnityEngine.Random.Range(0f, 1f) < mutationRate)
+                    if (UnityEngine.Random.Range(0f, 1f) < _mutationRate)
                     {
-
                         int intLetter = Convert.ToInt32(p1.genes[i]);
                         intLetter = ((intLetter + 1) - 97) % (p1.geneCount - 97);
                         p1.genes[i] = (char)(intLetter + 97);

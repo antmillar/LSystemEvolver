@@ -38,6 +38,18 @@ public class GraphController : MonoBehaviour {
         for (int i = 0; i < 5; i++)
         {
             rawImages[i].gameObject.AddComponent<Button>();
+
+            GameObject newGO = new GameObject("TextCaption" + i.ToString());
+            Text myText = newGO.AddComponent<Text>();
+            myText.color = Color.white;
+            myText.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
+            myText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            myText.rectTransform.sizeDelta = rawImages[i].rectTransform.sizeDelta;
+            newGO.transform.SetParent(GameObject.Find("Canvas").GetComponent<Canvas>().transform);
+            myText.rectTransform.localScale = new Vector3(1,1,1);
+
+            myText.transform.position = rawImages[i].transform.position + new Vector3(0, -0.35f, 0);
+
             Button btn = rawImages[i].gameObject.GetComponent<Button>();
             string txt = rawImages[i].gameObject.name;
             btn.onClick.AddListener(() => OnClickImage(txt));
@@ -63,7 +75,7 @@ public class GraphController : MonoBehaviour {
             meshFilters[i].mesh = mesh;
             Vector3 bnds = mesh.bounds.size;
             float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-            meshFilters[i].transform.localScale = Vector3.one / maxBound;
+            meshFilters[i].transform.localScale = Vector3.one / ( 2 * maxBound);
   
             //encodes the chosen lsystem to a genome
  
@@ -97,7 +109,7 @@ public class GraphController : MonoBehaviour {
         Population population = new Population(10, samplePopulation: sampleGenomes);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
-        Mutation mutation = new Mutation(mutateType);
+        Mutation mutation = new Mutation(mutateType, 0.1f);
 
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
@@ -109,7 +121,6 @@ public class GraphController : MonoBehaviour {
         {
             //convert initial genomes to lsystems
             string[] specimen = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[i].genome);
-            Debug.Log(string.Join("", specimen));
 
             var rsTest = rulesets[i];
             rsTest._rules["F"] = string.Join("", specimen);
@@ -125,8 +136,13 @@ public class GraphController : MonoBehaviour {
             Mesh mesh = turtle._finalMesh;
             GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().mesh = mesh;
             Vector3 bnds = mesh.bounds.size;
+            Vector3 firstVertex = mesh.vertices[0];
+            Vector3 translation = mesh.bounds.center - firstVertex;
             float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.localScale = Vector3.one / maxBound;
+            //GameObject.Find("cam" + i.ToString()).GetComponent<Transform>().transform.position = GameObject.Find("obj" + i.ToString()).GetComponent<Transform>().transform.position - mesh.bounds.center + new Vector3(0,0,-1);
+            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.localScale = Vector3.one / (2 * maxBound);
+
+            GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimen);
         }
      }
 
@@ -136,6 +152,7 @@ public class GraphController : MonoBehaviour {
         Debug.Log("GENERATION : " + geneticAlgo.Population._generation.ToString());
         DisplayPhenotypes(5);
         textGeneration.text = "Generation #" + geneticAlgo.Population._generation.ToString();
+
     }
 
     public void OnClickImage(string rawSelectionNum)
