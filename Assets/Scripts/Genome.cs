@@ -6,6 +6,7 @@ public class Genome {
 	public char[] genes;
 	public string genome;
 	private float mutateRate;
+    public int geneCount;
 
     //constructor for genome from parent phenotype
     public Genome(string parentGenome)
@@ -19,6 +20,7 @@ public class Genome {
     public Genome(int length, int randomSeed){
 
 		genes = new char[length];
+        geneCount = 10; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 
@@ -30,7 +32,7 @@ public class Genome {
         for (int i = 0; i < length; i++)
         {
             //issue here with timing and random being same
-            int randInt = randomInt.Next(97, 122);
+            int randInt = randomInt.Next(97, 97 + geneCount);
             genes[i] = (char)randInt;
             
         }

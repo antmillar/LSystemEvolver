@@ -25,7 +25,7 @@ public class Encoder : IEncoder<Color>
 
         string output = new string(chars);
 
-        Debug.Log("target string is " + output);
+        Debug.Log("encoded string is " + output);
 
         return output;
     }
@@ -44,6 +44,44 @@ public class Encoder : IEncoder<Color>
         return colors;
     }
 }
+
+//converts from a LSystem to string based genome
+public class LEncoder : IEncoder<string>
+{
+    public string Encode(string[] rule)
+    {
+        string reducedLetters = "Ff-+|!\"";
+        char[] chars = new char[rule.Length];
+
+
+        for (int i = 0; i < rule.Length; i++)
+        {
+            chars[i] = (char)(reducedLetters.IndexOf(rule[i]) + 97);
+        }
+
+        string output = new string(chars);
+
+        Debug.Log("encoded lsystem rule is " + output);
+
+        return output;
+    }
+
+    public string[] Decode(string genomeString)
+    {
+        string reducedLetters = "Ff-+|!\"";
+        string[] rule = new string[genomeString.Length];
+        char[] chars = genomeString.ToCharArray();
+
+        for (int i = 0; i < genomeString.Length; i++)
+        {
+            int index = (chars[i] - 97);
+            rule[i] = reducedLetters[index].ToString();
+        }
+
+        return rule;
+    }
+}
+
 
 public class Population
 {

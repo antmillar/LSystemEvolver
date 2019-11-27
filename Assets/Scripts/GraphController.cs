@@ -22,8 +22,8 @@ public class GraphController : MonoBehaviour {
 
         for (int i = 1; i < 4; i++)
         {
-        Debug.Log(i.ToString());
-        var rsTest = systemsJSON[i.ToString()];
+        Debug.Log("System " + i.ToString());
+        var rsTest = systemsJSON["0"];
 		
 		//create L system
 		LSystem ls = new LSystem(rsTest._axiom, 4, rsTest);
@@ -41,13 +41,21 @@ public class GraphController : MonoBehaviour {
         mfs[i - 1].mesh = mesh;
         Vector3 bnds = mesh.bounds.size;
         float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-        Debug.Log(maxBound);
         mfs[i - 1].transform.localScale = Vector3.one / maxBound;
             //need to recenter as well probably....
             //need to stop fractals going on too long too
 
-        }
+            LEncoder lencode = new LEncoder();
+            string temp = rsTest._rules["F"];
 
+            char[] chars = temp.ToCharArray();
+            string[] temps = new string[chars.Length];
+            for(int j = 0; j < chars.Length; j++)
+            {
+                temps[j] = chars[j].ToString();
+            }
+            lencode.Encode(temps);
+        }
 
     }
 

@@ -257,7 +257,6 @@ GameObject:
   m_Component:
   - component: {fileID: 806968234}
   - component: {fileID: 806968233}
-  - component: {fileID: 806968232}
   m_Layer: 0
   m_Name: cam3
   m_TagString: Untagged
@@ -265,14 +264,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &806968232
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806968231}
-  m_Enabled: 1
 --- !u!20 &806968233
 Camera:
   m_ObjectHideFlags: 0
@@ -454,7 +445,6 @@ GameObject:
   m_Component:
   - component: {fileID: 980022212}
   - component: {fileID: 980022211}
-  - component: {fileID: 980022210}
   m_Layer: 0
   m_Name: cam2
   m_TagString: Untagged
@@ -462,14 +452,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &980022210
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 980022209}
-  m_Enabled: 1
 --- !u!20 &980022211
 Camera:
   m_ObjectHideFlags: 0
@@ -539,7 +521,6 @@ GameObject:
   - component: {fileID: 1052305305}
   - component: {fileID: 1052305309}
   - component: {fileID: 1052305306}
-  - component: {fileID: 1052305307}
   m_Layer: 0
   m_Name: GraphController
   m_TagString: Untagged
@@ -592,19 +573,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 5
---- !u!114 &1052305307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052305304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0bb33a5762f3654589e18cc72e59abe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 0}
 --- !u!222 &1052305309
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1006,7 +974,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1764519606}
   - component: {fileID: 1764519605}
-  - component: {fileID: 1764519604}
   m_Layer: 0
   m_Name: cam1
   m_TagString: Untagged
@@ -1014,14 +981,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1764519604
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1764519603}
-  m_Enabled: 1
 --- !u!20 &1764519605
 Camera:
   m_ObjectHideFlags: 0
@@ -1056,7 +1015,7 @@ Camera:
     m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 8400000, guid: a0ec990b24e41d3449b4d20e3ce44517, type: 2}
-  m_TargetDisplay: 0
+  m_TargetDisplay: 1
   m_TargetEye: 3
   m_HDR: 1
   m_AllowMSAA: 1
