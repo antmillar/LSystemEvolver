@@ -44,7 +44,7 @@ public static class InitialiseDB
         rs2.Validate();
 
         RuleSet rs3 = new RuleSet("Fractal", "F-F-F-F", "F", 90f);
-        rs3.AddRule("F", "F-FfF-F-F+F");
+        rs3.AddRule("F", "F-FF-|F-F");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
         rs3.Validate();
 

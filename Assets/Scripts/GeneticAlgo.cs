@@ -71,7 +71,6 @@ public class Encoder : IEncoder<string>
         string reducedLetters = "Ff-+|!\"";
         string[] rule = new string[genomeString.Length];
         char[] chars = genomeString.ToCharArray();
-        Debug.Log(genomeString);
         for (int i = 0; i < genomeString.Length; i++)
         {
             int index = (chars[i] - 97);
@@ -469,8 +468,6 @@ public class Mutation
                         Debug.Log("Mutate!");
                         int randomChoice = r.Next(97, 97 + p1.geneCount);
                         p1.genes[i] = (char)(randomChoice);
-
-                        Debug.Log((char)randomChoice);
                     }
                 }
        
