@@ -167,7 +167,7 @@ class Turtle
     }
 
     //combines the line meshes into a final mesh
-    public void DrawMesh()
+    public void CreateMesh()
     {
         //combine meshes
         var finalMesh = new Mesh();

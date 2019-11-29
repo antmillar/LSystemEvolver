@@ -50,7 +50,7 @@ public class Encoder : IEncoder<string>
 {
     public string Encode(string[] rule)
     {
-        string reducedLetters = "Ff-+|!\"";
+        string reducedLetters = "Ff-+|!\"G";
         char[] chars = new char[rule.Length];
 
 
@@ -68,7 +68,7 @@ public class Encoder : IEncoder<string>
 
     public string[] Decode(string genomeString)
     {
-        string reducedLetters = "Ff-+|!\"";
+        string reducedLetters = "Ff-+|!\"G";
         string[] rule = new string[genomeString.Length];
         char[] chars = genomeString.ToCharArray();
         for (int i = 0; i < genomeString.Length; i++)
@@ -465,7 +465,6 @@ public class Mutation
                     if (r.NextDouble() < _mutationRate)
                     {
 
-                        Debug.Log("Mutate!");
                         int randomChoice = r.Next(97, 97 + p1.geneCount);
                         p1.genes[i] = (char)(randomChoice);
                     }

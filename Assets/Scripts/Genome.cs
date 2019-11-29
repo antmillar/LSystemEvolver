@@ -14,14 +14,14 @@ public class Genome {
 
         genome = parentGenome;
         genes = parentGenome.ToCharArray();
-        geneCount = 7;
+        geneCount = 8;
 
     }
     //constructor for first random genotype by length
     public Genome(int length, int randomSeed){
 
 		genes = new char[length];
-        geneCount = 7; //hard coded HACKY!
+        geneCount = 8; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 
