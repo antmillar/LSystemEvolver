@@ -44,10 +44,10 @@ public class GraphController : MonoBehaviour {
             myText.font = Resources.Load<Font>("Fonts/UnicaOne-Regular");
             myText.fontSize = 10;
             myText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            myText.rectTransform.sizeDelta = rawImages[i].rectTransform.sizeDelta;
-            // myText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 75f);
-            myText.rectTransform.localScale = new Vector3(1f,1f,1);
-            myText.transform.position = rawImages[i].transform.position + new Vector3(0, -0.3f, 0);
+            myText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
+            myText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 35f);
+            myText.rectTransform.localScale = new Vector3(1,1,1);
+            myText.rectTransform.localPosition = rawImages[i].rectTransform.localPosition + new Vector3(0, -90, 0);
 
             //add listener to the buttons
             Button btn = rawImages[i].gameObject.GetComponent<Button>();
@@ -123,7 +123,7 @@ public class GraphController : MonoBehaviour {
 
         Encoder encoder = new Encoder();
         Fitness fitness = new Fitness("");
-        Population population = new Population(40, samplePopulation: sampleGenomes);
+        Population population = new Population(40, samplePopulation: sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
         Mutation mutation = new Mutation(mutateType, 0.1f);

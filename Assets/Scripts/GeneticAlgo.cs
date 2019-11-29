@@ -241,8 +241,6 @@ public class Selection
             //this is when the user interactively chooses after each generation the best candidates
             case "god mode":
 
-                Debug.Log("Please choose the candidates selected to be the parents");
-                Debug.Log("Type 5 numbers between 0 and " + (p._size - 1).ToString());
                 string[] indices = userSelection.Split(' ');
 
                 //must have 5 selections.....
@@ -345,6 +343,7 @@ public class CrossOver
             p._genomes[i + 1] = new Genome(selectionStack.Pop().genome);
             //evolve them
             Cross(p._genomes[i], p._genomes[i + 1], p._variableGenomeLength);
+            //maybe could write test to check if variable genome lengths
 
         }
     }
