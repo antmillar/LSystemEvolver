@@ -503,8 +503,6 @@ public class GeneticAlgo
       
         //need to be able to seed a population from a list of values
 
-        //stop using all the letters a - z?
-
         if (!(_selection._selectionType == "god mode"))
         {
             _fitness.Apply(Population);

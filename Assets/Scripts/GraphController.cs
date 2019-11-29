@@ -3,61 +3,61 @@ using UnityEngine.UI;
 using System.Linq;
 public class GraphController : MonoBehaviour {
 
-    Turtle turtle;
-    public Material material;
     RuleSet[] rulesets;
     InputField inputSelection;
-    RawImage[] rawImages;
     Text textGeneration;
-
+    int imageCount;
     GeneticAlgo geneticAlgo;
+    Encoder encode;
+    string[] sampleGenomes;
 
     private void Start () {
 
+        imageCount = 16;
         textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
-        material = new Material(Shader.Find("Sprites/Default"));
         inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
-        rawImages = GetComponentsInChildren<RawImage>();
+        sampleGenomes = new string[2 * imageCount];
+        encode = new Encoder();
+        rulesets = new RuleSet[imageCount];
 
-        InitialiseDB.Initialise();
-
-        var test = new LSystemDB();
-        var systemsJSON = test.ReadFromFile();
-
-        string[] sampleGenomes = new string[32];
-        Encoder encode = new Encoder();
-        rulesets = new RuleSet[16];
+        //InitialiseDB.Initialise();
+        var ldb = new LSystemDB();
+        var systemsJSON = ldb.ReadFromFile();
 
         //get the L systems from database and assign them to a gameobject which is created here
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < imageCount; i++)
         {
-            ConstructGuiItem(i);
+            AddGuiItem(i);
 
-            Text textCaption = GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>();
+            //get the rule sets for s from DB
+            rulesets[i] = systemsJSON[(i % 4).ToString()];
             MeshFilter mf = GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>();
 
-            //get the rule sets for sample
-            rulesets[i] = systemsJSON[(i % 4).ToString()];
-
             MeshFromRuleset(rulesets[i], mf);
-
-            //encodes the chosen lsystem to a genome
-            string ruleF = rulesets[i]._rules["F"];
-            string ruleG = rulesets[i]._rules["G"];
-
-            string genomeF = encode.Encode(ruleF);
-            string genomeG = encode.Encode(ruleG);
-
-            sampleGenomes[i] = genomeF;
-            sampleGenomes[16 + i] = genomeG;
-            
-            textCaption.text = "F -> " + ruleF + "\n" + "G -> " + ruleG;
-           
+            EncodeSampleLSystems(i);
         }
 
         CreateGA(sampleGenomes);
     }
 
+    public void EncodeSampleLSystems(int idx)
+    {
+        //encodes the chosen lsystem to a genome
+        string ruleF = rulesets[idx]._rules["F"];
+        string ruleG = rulesets[idx]._rules["G"];
+
+        string genomeF = encode.Encode(ruleF);
+        string genomeG = encode.Encode(ruleG);
+
+        //need to sort this out
+        sampleGenomes[idx] = genomeF;
+        sampleGenomes[imageCount + idx] = genomeG;
+
+        Text textCaption = GameObject.Find("TextCaption" + idx.ToString()).GetComponent<Text>();
+        textCaption.text = "F -> " + ruleF + "\n" + "G -> " + ruleG;
+    }
+
+    //generates a mesh from a l ssz
     public void MeshFromRuleset(RuleSet ruleSet, MeshFilter mf)
     {
         //create L system
@@ -65,7 +65,7 @@ public class GraphController : MonoBehaviour {
         string lSystemOutput = ls.Generate();
 
         //use turtle to create mesh of L system
-        turtle = new Turtle(ruleSet._angle);
+        Turtle turtle = new Turtle(ruleSet._angle);
         turtle.Decode(lSystemOutput);
         turtle.CreateMesh();
 
@@ -76,8 +76,11 @@ public class GraphController : MonoBehaviour {
         mf.transform.localScale = Vector3.one / (maxBound);
     }
 
-    public void ConstructGuiItem(int idx)
+
+    //adds the text captions and buttons to raw images
+    public void AddGuiItem(int idx)
     {
+        RawImage[] rawImages = GetComponentsInChildren<RawImage>();
         //Add button to each image
         rawImages[idx].gameObject.AddComponent<Button>();
         string imageName = rawImages[idx].gameObject.name;
@@ -101,9 +104,10 @@ public class GraphController : MonoBehaviour {
         //add meshfilters/renderers to gameobjects that will hold the meshes
         MeshFilter mf = GameObject.Find("obj" + idx.ToString()).AddComponent<MeshFilter>();
         mf.gameObject.AddComponent<MeshRenderer>();
-        mf.gameObject.GetComponent<Renderer>().material = material;
+        mf.gameObject.GetComponent<Renderer>().material = new Material(Shader.Find("Sprites/Default")); ;
     }
 
+    //sets up the initial GA
     public void CreateGA(string[] sampleGenomes)
     {
         System.Random r = new System.Random(Time.frameCount);
@@ -122,6 +126,7 @@ public class GraphController : MonoBehaviour {
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
+    //converts from genomes to rulesets
     public void UpdateRulesets(int idx)
     {
         //convert initial genomes to lsystems
@@ -136,35 +141,30 @@ public class GraphController : MonoBehaviour {
         GameObject.Find("TextCaption" + idx.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimenF) + "\n" + "G -> " + string.Join("", specimenG);
     }
 
-    public void DisplayPhenotypes(int count)
+    //runs the next generation of the algo and updates the meshes
+    public void NextGeneration()
     {
-        for (int i = 0; i < count; i++)
+        geneticAlgo.NextGeneration(inputSelection.text);
+
+        for (int i = 0; i < imageCount; i++)
         {
             UpdateRulesets(i);
             MeshFilter mf = GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>();
             RuleSet rs = rulesets[i];
             MeshFromRuleset(rs, mf);
         }
-     }
-
-    public void OnButtonClick()
-    {
-        geneticAlgo.NextGeneration(inputSelection.text);
-        DisplayPhenotypes(16);
-
-
 
         textGeneration.text = "GENERATION : " + geneticAlgo.Population._generation.ToString();
+    }
+
+    public void OnClickEvolve()
+    {
+        NextGeneration();
     }
 
     public void OnClickImage(string rawSelectionNum)
     {
         inputSelection.text = rawSelectionNum.Substring(3).ToString() + " " + inputSelection.text;
-        CheckInputCount();
-    }
-
-    public void CheckInputCount()
-    {
         string[] inputs = inputSelection.text.Split(' ');
         string[] checkedInputs = inputs.Length > 5 ? inputs.Take(5).ToArray() : inputs;
         inputSelection.text = string.Join(" ", checkedInputs);
