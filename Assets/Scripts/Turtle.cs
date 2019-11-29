@@ -28,57 +28,59 @@ class Turtle
     }
 
     //parses the string instructions to draw the shape
-    public void Decode(string instructions){
+    public void Decode(string instructions)
+    {
 
-        if(instructions == null) {throw new NullReferenceException("ERROR : null input to Turtle");}
-        foreach(char c in instructions){
+        if (instructions == null) { throw new NullReferenceException("ERROR : null input to Turtle"); }
+        foreach (char c in instructions)
+        {
 
-            switch(c)
+            switch (c)
             {
                 case 'F': //move fwd and draw
                     Move();
                     break;
 
-                 case 'f': //move fwd only
+                case 'f': //move fwd only
                     Move(false);
                     break;
 
-                 case '+': //turn left by angle
+                case '+': //turn left by angle
                     Turn(-1 * _lineAngle);
                     break;
 
-                 case '-': //turn right by angle
+                case '-': //turn right by angle
                     Turn(_lineAngle);
                     break;
-                     
-                 case '|': //turn around
+
+                case '|': //turn around
                     Turn(180f);
-                    break;                   
+                    break;
 
-                 case '[': //push pos & heading to memory
-                    var memory = new Vector3[2] {_pos, _heading};
+                case '[': //push pos & heading to memory
+                    var memory = new Vector3[2] { _pos, _heading };
                     _transformStack.Push(memory);
-                    break;  
+                    break;
 
-                 case ']': //pop pos & heading from memory
+                case ']': //pop pos & heading from memory
 
                     var recall = new Vector3[2];
                     recall = _transformStack.Pop();
                     _pos = recall[0];
                     _heading = recall[1];
-                    break; 
+                    break;
 
-                 case '"': //rescale step size
+                case '"': //rescale step size
 
                     _stepSize *= 0.5f;
                     break;
 
-                 case '!': //rescale line width
+                case '!': //rescale line width
 
                     _lineRadius *= 0.5f;
                     break;
 
-                 default:
+                default:
 
                     throw new ArgumentException(c + " is not a valid argument");
             }
@@ -98,27 +100,30 @@ class Turtle
             //DrawLine();
         }
         else
-         _pos += _heading * _stepSize;
+            _pos += _heading * _stepSize;
     }
 
-    private void AddPoint(){
+    private void AddPoint()
+    {
 
         _pointStack.Push(_pos);
     }
 
-    private void Turn (float angle){
+    private void Turn(float angle)
+    {
 
-        var rotation  = Quaternion.AngleAxis(angle , Vector3.forward);
+        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         _heading = rotation * _heading;
     }
 
     //deprecated : draws a line connecting the two points in the point stack
-    private void DrawLine(){
+    private void DrawLine()
+    {
 
         GameObject myLine = new GameObject();
         Vector3 start = _pointStack.Pop();
         Vector3 end = _pointStack.Pop();
-        Color color = new Color(1,1,1);
+        Color color = new Color(1, 1, 1);
 
         myLine.transform.position = start;
         myLine.AddComponent<LineRenderer>();
@@ -177,11 +182,4 @@ class Turtle
         finalMesh.CombineMeshes(instances.ToArray());
         _finalMesh = finalMesh;
     }
-
-
 }
-
-//questions :
-// why is the line not extending the full length
-// is JSON sensible?
-//quad subdivision

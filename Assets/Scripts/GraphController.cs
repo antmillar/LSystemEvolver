@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Linq;
 public class GraphController : MonoBehaviour {
 
-    // Use this for initialization
     Turtle turtle;
     public Material material;
     RuleSet[] rulesets;
@@ -13,12 +12,11 @@ public class GraphController : MonoBehaviour {
 
     GeneticAlgo geneticAlgo;
 
-    private void Awake () {
+    private void Start () {
 
         textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
         material = new Material(Shader.Find("Sprites/Default"));
         inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
-        string systemchoice = gameObject.GetComponent<Text>().text;
         rawImages = GetComponentsInChildren<RawImage>();
 
         InitialiseDB.Initialise();
@@ -33,85 +31,78 @@ public class GraphController : MonoBehaviour {
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < 16; i++)
         {
-            //setting up the GUI
-            rawImages[i].gameObject.AddComponent<Button>();
-            GameObject textObject = new GameObject();
-            Text myText = textObject.AddComponent<Text>();
-            myText.name = "TextCaption" + i.ToString();
-            textObject.transform.SetParent(GameObject.Find("Canvas").GetComponent<Canvas>().transform);
+            ConstructGuiItem(i);
 
-            myText.color = Color.white;
-            myText.font = Resources.Load<Font>("Fonts/UnicaOne-Regular");
-            myText.fontSize = 10;
-            myText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            myText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
-            myText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 35f);
-            myText.rectTransform.localScale = new Vector3(1,1,1);
-            myText.rectTransform.localPosition = rawImages[i].rectTransform.localPosition + new Vector3(0, -90, 0);
-
-            //add listener to the buttons
-            Button btn = rawImages[i].gameObject.GetComponent<Button>();
-            string txt = rawImages[i].gameObject.name;
-            btn.onClick.AddListener(() => OnClickImage(txt));
+            Text textCaption = GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>();
+            MeshFilter mf = GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>();
 
             //get the rule sets for sample
-            var rsTest = systemsJSON[(i % 4).ToString()];
-            rulesets[i] = rsTest;
+            rulesets[i] = systemsJSON[(i % 4).ToString()];
 
-            //create L system
-            LSystem ls = new LSystem(rsTest._axiom, 4, rsTest);
-		    string lSystemOutput = ls.Generate();
-		    ls.Information();
-		
-		    //use turtle to create mesh of L system
-		    turtle = new Turtle(rsTest._angle);
-		    turtle.Decode(lSystemOutput);
-            turtle.CreateMesh();
+            MeshFromRuleset(rulesets[i], mf);
 
-            MeshFilter mf = GameObject.Find("obj" + i.ToString()).AddComponent<MeshFilter>();
-            mf.gameObject.AddComponent<MeshRenderer>();
-
-            mf.gameObject.GetComponent<Renderer>().material = material;
-            Mesh mesh = turtle._finalMesh;
-            mf.mesh = mesh;
-            Vector3 bnds = mesh.bounds.size;
-            float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-            mf.transform.localScale = Vector3.one / ( maxBound);
-  
             //encodes the chosen lsystem to a genome
-            string ruleF = rsTest._rules["F"];
-            string ruleG = rsTest._rules["G"];
+            string ruleF = rulesets[i]._rules["F"];
+            string ruleG = rulesets[i]._rules["G"];
 
-            char[] charsF = ruleF.ToCharArray();
-            char[] charsG = ruleG.ToCharArray();
+            string genomeF = encode.Encode(ruleF);
+            string genomeG = encode.Encode(ruleG);
 
-            string[] ruleStringsF = new string[charsF.Length];
-            for(int j = 0; j < charsF.Length; j++)
-            {
-                ruleStringsF[j] = charsF[j].ToString();
-            }
-
-            string[] ruleStringsG = new string[charsG.Length];
-            for (int j = 0; j < charsG.Length; j++)
-            {
-                ruleStringsG[j] = charsG[j].ToString();
-            }
-            string genomeF = encode.Encode(ruleStringsF);
-            string genomeG = encode.Encode(ruleStringsG);
             sampleGenomes[i] = genomeF;
             sampleGenomes[16 + i] = genomeG;
-            myText.text = "F -> " + string.Join("", ruleStringsF) + "\n" + "G -> " + string.Join("", ruleStringsG);
+            
+            textCaption.text = "F -> " + ruleF + "\n" + "G -> " + ruleG;
            
         }
-        //LIMIT FRACTAL LENGTH!!!!!
+
         CreateGA(sampleGenomes);
     }
 
-    //assets, packages, projectsttings, usersettings
-    //SHARING LINK IN ONEDRIVE, NO EXPIRY DATE
-    //MAKE HIGHER RES IMAGES THAN 1920 X 1080 FOR IMAGES FOR EXHIBITION
-    //UNITY SCREEN CAPTURE FRAME RECORD
-    //UNITY RECORDER, SHOW PREVIEW PAKCAGES
+    public void MeshFromRuleset(RuleSet ruleSet, MeshFilter mf)
+    {
+        //create L system
+        LSystem ls = new LSystem(ruleSet._axiom, 4, ruleSet);
+        string lSystemOutput = ls.Generate();
+
+        //use turtle to create mesh of L system
+        turtle = new Turtle(ruleSet._angle);
+        turtle.Decode(lSystemOutput);
+        turtle.CreateMesh();
+
+        Mesh mesh = turtle._finalMesh;
+        mf.mesh = mesh;
+        Vector3 bnds = mesh.bounds.size;
+        float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
+        mf.transform.localScale = Vector3.one / (maxBound);
+    }
+
+    public void ConstructGuiItem(int idx)
+    {
+        //Add button to each image
+        rawImages[idx].gameObject.AddComponent<Button>();
+        string imageName = rawImages[idx].gameObject.name;
+        rawImages[idx].gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickImage(imageName));
+
+        //Add game objects to hold text captions
+        GameObject textObject = new GameObject();
+        textObject.transform.SetParent(GameObject.Find("Canvas").GetComponent<Canvas>().transform);
+
+        //Add text to game objects created and format/position
+        Text textCaption = textObject.AddComponent<Text>();
+        textCaption.name = "TextCaption" + idx.ToString();
+        textCaption.font = Resources.Load<Font>("Fonts/UnicaOne-Regular");
+        textCaption.fontSize = 10;
+        textCaption.horizontalOverflow = HorizontalWrapMode.Overflow;
+        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
+        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 35f);
+        textCaption.rectTransform.localScale = new Vector3(1, 1, 1);
+        textCaption.rectTransform.localPosition = rawImages[idx].rectTransform.localPosition + new Vector3(0, -90, 0);
+
+        //add meshfilters/renderers to gameobjects that will hold the meshes
+        MeshFilter mf = GameObject.Find("obj" + idx.ToString()).AddComponent<MeshFilter>();
+        mf.gameObject.AddComponent<MeshRenderer>();
+        mf.gameObject.GetComponent<Renderer>().material = material;
+    }
 
     public void CreateGA(string[] sampleGenomes)
     {
@@ -131,44 +122,38 @@ public class GraphController : MonoBehaviour {
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
+    public void UpdateRulesets(int idx)
+    {
+        //convert initial genomes to lsystems
+        string specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome);
+        string specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[16 + idx].genome);
+
+        //change the ruleset rules according to evolution
+        var ruleSet = rulesets[idx];
+        ruleSet._rules["F"] = specimenF;
+        ruleSet._rules["G"] = specimenG;
+
+        GameObject.Find("TextCaption" + idx.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimenF) + "\n" + "G -> " + string.Join("", specimenG);
+    }
+
     public void DisplayPhenotypes(int count)
     {
-
         for (int i = 0; i < count; i++)
         {
-            //convert initial genomes to lsystems
-            string[] specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[i].genome);
-            string[] specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[16 + i].genome);
-            var rsTest = rulesets[i];
-
-            rsTest._rules["F"] = string.Join("", specimenF);
-            rsTest._rules["G"] = string.Join("", specimenG);
-
-            LSystem ls = new LSystem(rsTest._axiom, 4, rsTest);
-            string lSystemOutput = ls.Generate();
-
-            //use turtle to create mesh of L system
-            turtle = new Turtle(rsTest._angle);
-            turtle.Decode(lSystemOutput);
-            turtle.CreateMesh();
-
-            Mesh mesh = turtle._finalMesh;
-            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().mesh = mesh;
-            Vector3 bnds = mesh.bounds.size;
-            Vector3 firstVertex = mesh.vertices[0];
-            float maxBound = Mathf.Max(bnds[0], bnds[1], bnds[2]);
-            //GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.Translate(mesh.bounds.center);
-            //GameObject.Find("cam" + i.ToString()).GetComponent<Transform>().transform.position = GameObject.Find("obj" + i.ToString()).GetComponent<Transform>().transform.position - mesh.bounds.center + new Vector3(0,0,-1);
-            GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>().transform.localScale = Vector3.one / (maxBound);
-            GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimenF) + "\n" + "G -> " + string.Join("", specimenG);
+            UpdateRulesets(i);
+            MeshFilter mf = GameObject.Find("obj" + i.ToString()).GetComponent<MeshFilter>();
+            RuleSet rs = rulesets[i];
+            MeshFromRuleset(rs, mf);
         }
      }
 
     public void OnButtonClick()
     {
         geneticAlgo.NextGeneration(inputSelection.text);
-        Debug.Log("GENERATION : " + geneticAlgo.Population._generation.ToString());
         DisplayPhenotypes(16);
+
+
+
         textGeneration.text = "GENERATION : " + geneticAlgo.Population._generation.ToString();
     }
 
@@ -190,8 +175,11 @@ public class GraphController : MonoBehaviour {
     }
 }
 
+
+
+
+
 //subdivision as rescaling, read catmull clark??
-//evolve an L system that approximates a line?
 //quad subdivision and apply evo algo
 //need to allow rules with input of length 2
 

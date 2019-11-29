@@ -7,52 +7,16 @@ using UnityEngine;
 //T is the type that the phenotype is represented by
 interface IEncoder<T>
 {
-    string Encode(T[] obj);
-    T[] Decode(string genomeString);
+    string Encode(T obj);
+    T Decode(string genomeString);
 }
-
-//converts from a Color to string based genome
-//public class userEncoder : IEncoder<Color>
-//{
-//    public string Encode(Color[] pixels)
-//    {
-//        char[] chars = new char[pixels.Length];
-
-//        for (int i = 0; i < pixels.Length; i++)
-//        {
-//            chars[i] = (char)(pixels[i].r * 10 + 97);
-//        }
-
-//        string output = new string(chars);
-
-//        Debug.Log("encoded string is " + output);
-
-//        return output;
-//    }
-
-//    public Color[] Decode(string genomeString)
-//    {
-//        Color[] colors = new Color[genomeString.Length];
-//        char[] chars = genomeString.ToCharArray();
-
-//        for (int i = 0; i < genomeString.Length; i++)
-//        {
-//            float colorW = (chars[i] - 97) / 10f;
-//            colors[i] = new Color(colorW, colorW, colorW);
-//        }
-
-//        return colors;
-//    }
-//}
-
 //converts from a LSystem to string based genome
 public class Encoder : IEncoder<string>
 {
-    public string Encode(string[] rule)
+    public string Encode(string rule)
     {
         string reducedLetters = "Ff-+|!\"G";
         char[] chars = new char[rule.Length];
-
 
         for (int i = 0; i < rule.Length; i++)
         {
@@ -66,15 +30,15 @@ public class Encoder : IEncoder<string>
         return output;
     }
 
-    public string[] Decode(string genomeString)
+    public string Decode(string genomeString)
     {
         string reducedLetters = "Ff-+|!\"G";
-        string[] rule = new string[genomeString.Length];
+        string rule = "";
         char[] chars = genomeString.ToCharArray();
         for (int i = 0; i < genomeString.Length; i++)
         {
             int index = (chars[i] - 97);
-            rule[i] = reducedLetters[index].ToString();
+            rule += reducedLetters[index].ToString();
         }
 
         return rule;
@@ -351,10 +315,10 @@ public class CrossOver
     //takes two genomes as input and mutates them
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength)
     {
-        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length - 1 ); //1st crossover pt on first genome
-        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length - 1); //1st crossover pt on second genome
-
-        if (!variableGenomeLength) yPt1 = xPt1; //if all genomes the same length, use the same 1st crossover pt
+        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length); //1st crossover pt on first genome
+        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length); //1st crossover pt on second genome
+        Debug.Log(xPt1.ToString() + " " + yPt1.ToString());
+        if (!variableGenomeLength) { yPt1 = xPt1; } //if all genomes the same length, use the same 1st crossover pt
 
         string crossedString1, crossedString2;
 
@@ -362,7 +326,7 @@ public class CrossOver
         {
             //cuts the genotype at one point and swaps genes
             case "OnePt":
-
+ 
                 crossedString1 = p1.genome.Substring(0, xPt1) + p2.genome.Substring(yPt1);
                 p1 = new Genome(crossedString1);
 
@@ -377,7 +341,7 @@ public class CrossOver
                 int xPt2 = UnityEngine.Random.Range(0, p1.genome.Length); //2nd crossover pt on first genome
                 int yPt2 = UnityEngine.Random.Range(0, p2.genome.Length); //2nd crossover pt on first genome
 
-                if (!variableGenomeLength) yPt2 = xPt2; //if all genomes the same length, use the same 2nd crossover pt
+                if (!variableGenomeLength) {yPt2 = xPt2; } //if all genomes the same length, use the same 2nd crossover pt
 
                 int xmin = Math.Min(xPt1, xPt2);
                 int xmax = Math.Max(xPt1, xPt2);
@@ -464,7 +428,7 @@ public class Mutation
                     if (r.NextDouble() < _mutationRate)
                     {
 
-                        int randomChoice = r.Next(97, 97 + p1.geneCount);
+                        int randomChoice = r.Next(97, 97 + p1.geneTypeCount);
                         p1.genes[i] = (char)(randomChoice);
                     }
                 }
@@ -480,7 +444,7 @@ public class Mutation
                     if (UnityEngine.Random.Range(0f, 1f) < _mutationRate)
                     {
                         int intLetter = Convert.ToInt32(p1.genes[i]);
-                        intLetter = ((intLetter + 1) - 97) % (p1.geneCount - 97);
+                        intLetter = ((intLetter + 1) - 97) % (p1.geneTypeCount - 97);
                         p1.genes[i] = (char)(intLetter + 97);
                     }
                 }
