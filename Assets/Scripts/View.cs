@@ -73,11 +73,12 @@ class View
     public void OnClickImage(string rawSelectionNum)
     {
         InputField inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
-        inputSelection.text = rawSelectionNum.Substring(3).ToString() + " " + inputSelection.text;
+
+        if (inputSelection.text == "") { inputSelection.text = rawSelectionNum.Substring(3).ToString(); }
+        else {inputSelection.text = inputSelection.text + " " + rawSelectionNum.Substring(3).ToString(); }
         string[] inputs = inputSelection.text.Split(' ');
-        string[] checkedInputs = inputs.Length > 5 ? inputs.Take(5).ToArray() : inputs;
+        string[] checkedInputs = inputs.Length > 5 ? inputs.Reverse().Take(5).Reverse().ToArray() : inputs;
         inputSelection.text = string.Join(" ", checkedInputs);
     }
-
 }
 

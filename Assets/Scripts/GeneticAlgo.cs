@@ -206,18 +206,25 @@ public class Selection
             case "god mode":
 
                 string[] indices = userSelection.Split(' ');
-
-                //must have 5 selections.....
-                for (int i = 0; i < 5; i++)
-                {
-                    Debug.Log("User chose Candidate " + indices[i] + "\nGenome : " + p._genomes[int.Parse(indices[i])].ToString());
-
-                    for (int j = 0; j < (size / 5); j++)
-                    {
-                        selectionPool.Add(p._genomes[int.Parse(indices[i])]);
-                    }
+                int selectionCount = indices.Length;
+                //if user doesn't choose any, just use the whole population again as parents
+                if (selectionCount == 0) {
+                    selectionPool = p._genomes.Select(x => x).ToList();
                 }
-
+                else
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        Debug.Log("int " + i);
+                        string mod = indices[i % selectionCount];
+                        Debug.Log("mod " + mod);
+                        Debug.Log("sel cont " + selectionCount);
+                        Debug.Log("User chose Candidate " + mod + " Genome : " + p._genomes[int.Parse(mod)].ToString());
+                        //adds the selected candidates to the pool in roughly equal proportion
+                        //slight issue here with low populations/odd numbers of selections which biases the selectionPool a bit
+                        selectionPool.Add(p._genomes[int.Parse(mod)]);
+                    }
+                } 
                 break;
 
             //choose sample of size n from the GA, and places the highest fitness one in the selection pool
@@ -508,7 +515,7 @@ public class GeneticAlgo
             _fitness.Apply(Population);
         }
 
-        List<Genome>parentSelection = _selection.Select(Population, userSelection);
+        List<Genome>parentSelection = _selection.Select(Population, userSelection); //applies the selection algorithm chosen to the population
         _crossover.Apply(Population, parentSelection);
         _mutation.Apply(Population);
         Population._generation++;

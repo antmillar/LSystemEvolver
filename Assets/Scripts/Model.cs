@@ -3,20 +3,20 @@ using UnityEngine.UI;
 
 public class Model
 {
-    public RuleSet[] rulesets;
+    public RuleSet[] _rulesets;
     public Mesh[] meshes;
     public GeneticAlgo geneticAlgo;
 
     int _childCount;
-    Encoder encode;
-    string[] sampleGenomes;
+    Encoder _encode;
+    string[] _sampleGenomes;
 
     public Model(int childCount)
     {
         _childCount = childCount;
-        sampleGenomes = new string[2 * _childCount];
-        encode = new Encoder();
-        rulesets = new RuleSet[_childCount];
+        _sampleGenomes = new string[2 * _childCount];
+        _encode = new Encoder();
+        _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
 
         var ldb = new LSystemDB();
@@ -26,27 +26,27 @@ public class Model
         for (int i = 0; i < _childCount; i++)
         {
             //get the rule sets for samples from DB
-            rulesets[i] = systemsJSON[(i % 4).ToString()];
-            meshes[i] = MeshFromRuleset(rulesets[i]);
+            _rulesets[i] = systemsJSON[(i % 4).ToString()];
+            meshes[i] = MeshFromRuleset(_rulesets[i]);
             EncodeSampleLSystems(i);
         }
 
-        CreateGA(sampleGenomes);
+        CreateGA(_sampleGenomes);
     }
 
     //encodes the initial sample l systems to genomes
     public void EncodeSampleLSystems(int idx)
     {
         //encodes the chosen lsystem to a genome
-        string ruleF = rulesets[idx]._rules["F"];
-        string ruleG = rulesets[idx]._rules["G"];
+        string ruleF = _rulesets[idx]._rules["F"];
+        string ruleG = _rulesets[idx]._rules["G"];
 
-        string genomeF = encode.Encode(ruleF);
-        string genomeG = encode.Encode(ruleG);
+        string genomeF = _encode.Encode(ruleF);
+        string genomeG = _encode.Encode(ruleG);
 
         //need to sort this out
-        sampleGenomes[idx] = genomeF;
-        sampleGenomes[_childCount + idx] = genomeG;
+        _sampleGenomes[idx] = genomeF;
+        _sampleGenomes[_childCount + idx] = genomeG;
     }
 
     //generates a mesh from a l system ruleset
@@ -67,7 +67,7 @@ public class Model
     }
 
     //sets up the initial GA
-    public void CreateGA(string[] sampleGenomes)
+    public void CreateGA(string[] _sampleGenomes)
     {
         System.Random r = new System.Random(Time.frameCount);
 
@@ -77,7 +77,7 @@ public class Model
 
         Encoder encoder = new Encoder();
         Fitness fitness = new Fitness("");
-        Population population = new Population(40, samplePopulation: sampleGenomes, variableGenomeLength: true);
+        Population population = new Population(40, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
         Mutation mutation = new Mutation(mutateType, 0.1f);
@@ -85,15 +85,15 @@ public class Model
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
-    //converts from genomes to rulesets
-    public void UpdateRulesets(int idx)
+    //converts from genomes to _rulesets
+    public void Update_rulesets(int idx)
     {
         //convert initial genomes to lsystems
         string specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome);
         string specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[_childCount + idx].genome);
 
         //change the ruleset rules according to evolution
-        var ruleSet = rulesets[idx];
+        var ruleSet = _rulesets[idx];
         ruleSet._rules["F"] = specimenF;
         ruleSet._rules["G"] = specimenG;
 
@@ -107,8 +107,8 @@ public class Model
 
         for (int i = 0; i < _childCount; i++)
         {
-            UpdateRulesets(i);
-            meshes[i] = MeshFromRuleset(rulesets[i]);
+            Update_rulesets(i);
+            meshes[i] = MeshFromRuleset(_rulesets[i]);
         }
 
     }
