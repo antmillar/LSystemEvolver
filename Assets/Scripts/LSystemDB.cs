@@ -51,14 +51,14 @@ public static class InitialiseDB
         rs3.AddRule("F", "F-FF-|F-F");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
         rs3.AddRule("G", "F-FF--F-F");
-        rs3.AddTerminal("G", "");
+        rs3.AddTerminal("G", "F");
         rs3.Validate();
 
         RuleSet rs4 = new RuleSet("Fractal", "F-F-F-F", "FG", 30f);
         rs4.AddRule("F", "F-FF-F");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
         rs4.AddRule("G", "F-FF--F-F");
-        rs4.AddTerminal("G", "");
+        rs4.AddTerminal("G", "F");
         rs4.Validate();
 
         //RuleSet rs4 = new RuleSet("Tree", "G", "FG", 45f);

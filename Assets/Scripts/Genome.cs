@@ -58,6 +58,7 @@ public class Genome {
 		return genome;
 	}
 
+    //unused
 	public double randDist(){
 
 		System.Random rand = new System.Random(); //reuse this if you are generating many

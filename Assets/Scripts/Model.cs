@@ -19,7 +19,9 @@ public class Model
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
 
+        InitialiseDB.Initialise();
         var ldb = new LSystemDB();
+        
         var systemsJSON = ldb.ReadFromFile();
 
         //get the L systems from database and assign them to a gameobject which is created here

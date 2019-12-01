@@ -76,9 +76,8 @@ class View
 
         if (inputSelection.text == "") { inputSelection.text = rawSelectionNum.Substring(3).ToString(); }
         else {inputSelection.text = inputSelection.text + " " + rawSelectionNum.Substring(3).ToString(); }
-        string[] inputs = inputSelection.text.Split(' ');
-        string[] checkedInputs = inputs.Length > 5 ? inputs.Reverse().Take(5).Reverse().ToArray() : inputs;
-        inputSelection.text = string.Join(" ", checkedInputs);
+        string[] inputs = inputSelection.text.Split(' ').Reverse().Take(5).Reverse().ToArray(); //take the last 5 inputs
+        inputSelection.text = string.Join(" ", inputs);
     }
 }
 
