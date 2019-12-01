@@ -5,11 +5,13 @@ class View
 {
     MeshFilter[] _meshFilters;
     int _childCount;
+    InputField inputSelection;
 
     public View(int childCount)
     {
         _childCount = childCount;
         _meshFilters = new MeshFilter[_childCount];
+        inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
 
         for (int i = 0; i < _childCount; i++)
         {
@@ -38,6 +40,7 @@ class View
 
         Text textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
         textGeneration.text = "GENERATION : " + generation.ToString();
+        inputSelection.text = "";
     }
 
     //adds the text captions and buttons to raw images
@@ -72,8 +75,6 @@ class View
     }
     public void OnClickImage(string rawSelectionNum)
     {
-        InputField inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
-
         if (inputSelection.text == "") { inputSelection.text = rawSelectionNum.Substring(3).ToString(); }
         else {inputSelection.text = inputSelection.text + " " + rawSelectionNum.Substring(3).ToString(); }
         string[] inputs = inputSelection.text.Split(' ').Reverse().Take(5).Reverse().ToArray(); //take the last 5 inputs

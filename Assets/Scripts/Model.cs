@@ -9,12 +9,12 @@ public class Model
 
     int _childCount;
     Encoder _encode;
-    string[] _sampleGenomes;
+    string[][] _sampleGenomes;
 
     public Model(int childCount)
     {
         _childCount = childCount;
-        _sampleGenomes = new string[2 * _childCount];
+        _sampleGenomes = new string[_childCount][];
         _encode = new Encoder();
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
@@ -47,8 +47,9 @@ public class Model
         string genomeG = _encode.Encode(ruleG);
 
         //need to sort this out
-        _sampleGenomes[idx] = genomeF;
-        _sampleGenomes[_childCount + idx] = genomeG;
+        _sampleGenomes[idx] = new string[2];
+        _sampleGenomes[idx][0] = genomeF;
+        _sampleGenomes[idx][1] = genomeG;
     }
 
     //generates a mesh from a l system ruleset
@@ -69,7 +70,7 @@ public class Model
     }
 
     //sets up the initial GA
-    public void CreateGA(string[] _sampleGenomes)
+    public void CreateGA(string[][] _sampleGenomes)
     {
         System.Random r = new System.Random(Time.frameCount);
 
@@ -79,10 +80,10 @@ public class Model
 
         Encoder encoder = new Encoder();
         Fitness fitness = new Fitness("");
-        Population population = new Population(40, samplePopulation: _sampleGenomes, variableGenomeLength: true);
+        Population population = new Population(16, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
-        Mutation mutation = new Mutation(mutateType, 0.1f);
+        Mutation mutation = new Mutation(mutateType, 0.5f);
 
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
@@ -91,8 +92,8 @@ public class Model
     public void Update_rulesets(int idx)
     {
         //convert initial genomes to lsystems
-        string specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome);
-        string specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[_childCount + idx].genome);
+        string specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome[0]);
+        string specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome[1]);
 
         //change the ruleset rules according to evolution
         var ruleSet = _rulesets[idx];

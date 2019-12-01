@@ -54,13 +54,13 @@ public class Population
     public int _bestFitness;
     public int _size;
     
-    public string _bestGenome;
+    public string[] _bestGenome;
     public Genome[] _genomes;
     public int[] _fitnesses;
 
     public bool _variableGenomeLength;
 
-    public Population(int size, string target = "", string[] samplePopulation = null, bool variableGenomeLength = false)
+    public Population(int size, string target = "", string[][] samplePopulation = null, bool variableGenomeLength = false)
     {
         _size = size;
         _genomes = new Genome[_size];
@@ -73,7 +73,7 @@ public class Population
         }
     }
 
-    //creates first generation
+    //creates first generation //NEED TO MAKE THIS WORK FOR STRING ARRAYS
     public void SeedRandom(string target)
     {
         System.Random randomInt = new System.Random(); //for random seed for the genome
@@ -85,11 +85,11 @@ public class Population
         _generation++;
     }
 
-    public void SeedFromSamples(string[] samplePopulation)
+    public void SeedFromSamples(string[][] samplePopulation)
     {
         for (int i = 0; i < _size; i++)
         {
-            _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]); //adds samples to the population loops around the samples
+            _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]) ; //adds samples to the population loops around the samples
         }
         _generation++;
     }
@@ -126,13 +126,15 @@ public class Fitness
     private int FitnessFunction(Genome g)
     {
         int fitness = 0;
-        //calculates the difference in characters between the candidate genome and target
-        for (int i = 0; i < g.genes.Length; i++)
+        for (int j = 0; j < g.genes.Length; j++)
         {
-
-            if (g.genes[i] == _target[i])
+            //calculates the difference in characters between the candidate genome and target
+            for (int i = 0; i < g.genes[j].Length; i++)
             {
-                fitness++;
+                if (g.genes[j][i] == _target[i])
+                {
+                    fitness++;
+                }
             }
         }
         return fitness;
@@ -187,8 +189,6 @@ public class Selection
         return cdf;
     }
 
-
-
     //returns an array with frequency of the top 3 fitnesses weighted by occurence i.e cdf
     public List<Genome> Select(Population p, string userSelection = "")
     {
@@ -215,10 +215,7 @@ public class Selection
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        Debug.Log("int " + i);
                         string mod = indices[i % selectionCount];
-                        Debug.Log("mod " + mod);
-                        Debug.Log("sel cont " + selectionCount);
                         Debug.Log("User chose Candidate " + mod + " Genome : " + p._genomes[int.Parse(mod)].ToString());
                         //adds the selected candidates to the pool in roughly equal proportion
                         //slight issue here with low populations/odd numbers of selections which biases the selectionPool a bit
@@ -301,7 +298,6 @@ public class CrossOver
     {
         //population has to be even number currently......
         //because the population size is driving the selectionPool size
-        //must be a multipleo of 5 if using selection curreltly....
         p._genomes = new Genome[p._size];
         Stack<Genome> selectionStack = new Stack<Genome>(selectionPool);
 
@@ -322,23 +318,28 @@ public class CrossOver
     //takes two genomes as input and mutates them
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength)
     {
-        int xPt1 = UnityEngine.Random.Range(0, p1.genome.Length); //1st crossover pt on first genome
-        int yPt1 = UnityEngine.Random.Range(0, p2.genome.Length); //1st crossover pt on second genome
-        Debug.Log(xPt1.ToString() + " " + yPt1.ToString());
+        int genomeChoice = UnityEngine.Random.Range(0, p1.genome.Length);
+
+        int xPt1 = UnityEngine.Random.Range(0, p1.genome[genomeChoice].Length); //1st crossover pt on first genome
+        int yPt1 = UnityEngine.Random.Range(0, p2.genome[genomeChoice].Length); //1st crossover pt on second genome
+
         if (!variableGenomeLength) { yPt1 = xPt1; } //if all genomes the same length, use the same 1st crossover pt
 
         string crossedString1, crossedString2;
+        string[] newStrings1, newStrings2;
 
         switch (_crossoverType)
         {
             //cuts the genotype at one point and swaps genes
             case "OnePt":
  
-                crossedString1 = p1.genome.Substring(0, xPt1) + p2.genome.Substring(yPt1);
-                p1 = new Genome(crossedString1);
+                crossedString1 = p1.genome[genomeChoice].Substring(0, xPt1) + p2.genome[genomeChoice].Substring(yPt1);
 
-                crossedString2 = p2.genome.Substring(0, yPt1) + p1.genome.Substring(xPt1);
-                p2 = new Genome(crossedString2);
+                p1.genome[genomeChoice] = crossedString1;
+
+                crossedString2 = p2.genome[genomeChoice].Substring(0, yPt1) + p1.genome[genomeChoice].Substring(xPt1);
+
+                p2.genome[genomeChoice] = crossedString2;
 
                 break;
 
@@ -356,11 +357,11 @@ public class CrossOver
                 int ymin = Math.Min(yPt1, yPt2);
                 int ymax = Math.Max(yPt1, yPt2);
 
-                crossedString1 = p1.genome.Substring(0, xmin) + p2.genome.Substring(ymin, ymax - ymin) + p1.genome.Substring(xmax);
-                crossedString2 = p2.genome.Substring(0, ymin) + p1.genome.Substring(xmin, xmax - xmin) + p2.genome.Substring(ymax);
-       
-                p1 = new Genome(crossedString1);
-                p2 = new Genome(crossedString2);
+                crossedString1 = p1.genome[genomeChoice].Substring(0, xmin) + p2.genome[genomeChoice].Substring(ymin, ymax - ymin) + p1.genome[genomeChoice].Substring(xmax);
+                crossedString2 = p2.genome[genomeChoice].Substring(0, ymin) + p1.genome[genomeChoice].Substring(xmin, xmax - xmin) + p2.genome[genomeChoice].Substring(ymax);
+
+                p1.genome[genomeChoice] = crossedString1;
+                p2.genome[genomeChoice] = crossedString2;
 
                 break;
 
@@ -368,8 +369,8 @@ public class CrossOver
             case "Uniform":
 
                 float swapRate = 0.1f;
-                char[] chars1 = p1.genome.ToCharArray();
-                char[] chars2 = p2.genome.ToCharArray();
+                char[] chars1 = p1.genome[genomeChoice].ToCharArray();
+                char[] chars2 = p2.genome[genomeChoice].ToCharArray();
 
                 int minLength = Math.Min(chars1.Length, chars2.Length); //only swaps up till the end of shortest genome
 
@@ -384,8 +385,8 @@ public class CrossOver
                     }
                 }
 
-                p1 = new Genome(new string(chars1));
-                p2 = new Genome(new string(chars2));
+                p1.genome[genomeChoice] = new string(chars1);
+                p2.genome[genomeChoice] = new string(chars2);
 
                 break;
         }
@@ -421,6 +422,7 @@ public class Mutation
     //takes genome as input and mutates it
     public void Mutate(Genome p1, System.Random seed)
     {
+        int genomeChoice = UnityEngine.Random.Range(0, p1.genome.Length);
 
         switch (_mutationType)
         {
@@ -428,15 +430,15 @@ public class Mutation
             //if chosen, gene is mutated to random choice in range
             case "randomChoice":
 
-                for (int i = 0; i < p1.genes.Length; i++)
+                for (int i = 0; i < p1.genes[genomeChoice].Length; i++)
                 {
                     System.Random r = new System.Random(seed.Next());
                     //mutates based on the mutationRate
                     if (r.NextDouble() < _mutationRate)
                     {
 
-                        int randomChoice = r.Next(97, 97 + p1.geneTypeCount);
-                        p1.genes[i] = (char)(randomChoice);
+                        int randomChoice = r.Next(97, 97 + p1.baseTypeCount);
+                        p1.genes[genomeChoice][i] = (char)(randomChoice);
                     }
                 }
        
@@ -445,14 +447,14 @@ public class Mutation
             //if chosen, gene is tweaked up or down one index in the range
             case "stepUp":
 
-                for (int i = 0; i < p1.genes.Length; i++)
+                for (int i = 0; i < p1.genes[genomeChoice].Length; i++)
                 {
                     //mutates based on the mutationRate
                     if (UnityEngine.Random.Range(0f, 1f) < _mutationRate)
                     {
                         int intLetter = Convert.ToInt32(p1.genes[i]);
-                        intLetter = ((intLetter + 1) - 97) % (p1.geneTypeCount - 97);
-                        p1.genes[i] = (char)(intLetter + 97);
+                        intLetter = ((intLetter + 1) - 97) % (p1.baseTypeCount - 97);
+                        p1.genes[genomeChoice][i] = (char)(intLetter + 97);
                     }
                 }
 
@@ -462,8 +464,7 @@ public class Mutation
             case "gaussianConvolution":
                 break;
         }
-
-        p1.genome = new string(p1.genes);
+        p1.genome[genomeChoice] = new string(p1.genes[genomeChoice]);
     }
 }
 

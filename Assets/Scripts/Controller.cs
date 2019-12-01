@@ -37,6 +37,7 @@ public class Controller : MonoBehaviour {
 //quad subdivision and apply evo algo
 //need to allow rules with input of length 2
 
+//now it's possible to have two rules but all must have two rules
 
 
 
