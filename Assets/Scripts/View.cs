@@ -36,6 +36,7 @@ class View
         {
             Text textCaption = GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>();
             textCaption.text = "F -> " + ruleSets[i]._rules["F"] + "\n" + "G -> " + ruleSets[i]._rules["G"];
+
         }
 
         Text textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();

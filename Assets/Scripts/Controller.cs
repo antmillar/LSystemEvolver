@@ -41,6 +41,12 @@ public class Controller : MonoBehaviour {
 
 
 
+//sort out why all the kids are the same.... even with mutation?!
+//allow variable length rules (genomeChoice equals max??)
+//allow mixing of rules (but this is problem is
+
+
+
 
 
 

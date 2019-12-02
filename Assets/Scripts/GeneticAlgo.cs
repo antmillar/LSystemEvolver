@@ -73,7 +73,7 @@ public class Population
         }
     }
 
-    //creates first generation //NEED TO MAKE THIS WORK FOR STRING ARRAYS
+    //creates first generation //NEED TO MAKE THIS WORK FOR STRING ARRAYS and NEED TO CHECK FOR TARGETSTRING
     public void SeedRandom(string target)
     {
         System.Random randomInt = new System.Random(); //for random seed for the genome
@@ -216,7 +216,7 @@ public class Selection
                     for (int i = 0; i < size; i++)
                     {
                         string mod = indices[i % selectionCount];
-                        Debug.Log("User chose Candidate " + mod + " Genome : " + p._genomes[int.Parse(mod)].ToString());
+                        //Debug.Log("User chose Candidate " + mod + " Genome : " + p._genomes[int.Parse(mod)].ToString());
                         //adds the selected candidates to the pool in roughly equal proportion
                         //slight issue here with low populations/odd numbers of selections which biases the selectionPool a bit
                         selectionPool.Add(p._genomes[int.Parse(mod)]);
@@ -313,6 +313,8 @@ public class CrossOver
             //maybe could write test to check if variable genome lengths
 
         }
+
+        
     }
 
     //takes two genomes as input and mutates them
@@ -335,11 +337,11 @@ public class CrossOver
  
                 crossedString1 = p1.genome[genomeChoice].Substring(0, xPt1) + p2.genome[genomeChoice].Substring(yPt1);
 
-                p1.genome[genomeChoice] = crossedString1;
+                p1.setGene(genomeChoice, crossedString1);
 
                 crossedString2 = p2.genome[genomeChoice].Substring(0, yPt1) + p1.genome[genomeChoice].Substring(xPt1);
 
-                p2.genome[genomeChoice] = crossedString2;
+                p2.setGene(genomeChoice, crossedString2);
 
                 break;
 
@@ -360,8 +362,8 @@ public class CrossOver
                 crossedString1 = p1.genome[genomeChoice].Substring(0, xmin) + p2.genome[genomeChoice].Substring(ymin, ymax - ymin) + p1.genome[genomeChoice].Substring(xmax);
                 crossedString2 = p2.genome[genomeChoice].Substring(0, ymin) + p1.genome[genomeChoice].Substring(xmin, xmax - xmin) + p2.genome[genomeChoice].Substring(ymax);
 
-                p1.genome[genomeChoice] = crossedString1;
-                p2.genome[genomeChoice] = crossedString2;
+                p1.setGene(genomeChoice, crossedString1);
+                p2.setGene(genomeChoice, crossedString2);
 
                 break;
 
@@ -385,8 +387,8 @@ public class CrossOver
                     }
                 }
 
-                p1.genome[genomeChoice] = new string(chars1);
-                p2.genome[genomeChoice] = new string(chars2);
+                p1.setGene(genomeChoice, new string(chars1));
+                p2.setGene(genomeChoice, new string(chars2));
 
                 break;
         }
@@ -406,65 +408,77 @@ public class Mutation
 
     public void Apply(Population p)
     {
-        for (int i = 0; i < p._size; i += 1)
+        //p._genomes = new Genome[p._size];
+        Genome[] tempGenomes = new Genome[p._size];
+
+        for (int i = 0; i < tempGenomes.Length; i += 1)
         {
-
-            //mutate them
-            System.Random seed = new System.Random(i);
-            Mutate(p._genomes[i], seed);
-            p._genomes[i] = p._genomes[i];
-
+            int j = i;
+            Genome[] tempgenomes = p._genomes;
+            
+            //Genome temp = new Genome(p._genomes[j].genome);
+            System.Random seed = new System.Random(j);
+            tempgenomes[j] = Mutate(tempgenomes[j], seed);
+            //tempGenomes[j] = test;
+            Debug.Log(j.ToString() + " " + tempgenomes[j]);
         }
 
-
+        Debug.Log("a10 " + p._genomes[10].ToString());
+        Debug.Log("a11 " + p._genomes[11].ToString());
     }
 
     //takes genome as input and mutates it
-    public void Mutate(Genome p1, System.Random seed)
+    public Genome Mutate(Genome p1, System.Random seed)
     {
-        int genomeChoice = UnityEngine.Random.Range(0, p1.genome.Length);
-
+        int genomeChoice = UnityEngine.Random.Range(0, p1.genome.Length); //choose which gene to mutate
+        char[] bases = new char[p1.genome[genomeChoice].Length];
         switch (_mutationType)
         {
 
             //if chosen, gene is mutated to random choice in range
             case "randomChoice":
 
-                for (int i = 0; i < p1.genes[genomeChoice].Length; i++)
+                for (int i = 0; i < p1.genome[genomeChoice].Length; i++)
                 {
-                    System.Random r = new System.Random(seed.Next());
+                    System.Random r = new System.Random(seed.Next(i));
+
+                    bases[i] = p1.genome[genomeChoice][i];
+
                     //mutates based on the mutationRate
                     if (r.NextDouble() < _mutationRate)
                     {
-
                         int randomChoice = r.Next(97, 97 + p1.baseTypeCount);
-                        p1.genes[genomeChoice][i] = (char)(randomChoice);
+                        bases[i] = (char)(randomChoice); //if mutate overwrite it
                     }
                 }
-       
+                p1.setGene(genomeChoice, new string(bases));
                 break;
 
             //if chosen, gene is tweaked up or down one index in the range
             case "stepUp":
 
-                for (int i = 0; i < p1.genes[genomeChoice].Length; i++)
+                for (int i = 0; i < p1.genome[genomeChoice].Length; i++)
                 {
+                    bases[i] = p1.genome[genomeChoice][i];
+
                     //mutates based on the mutationRate
                     if (UnityEngine.Random.Range(0f, 1f) < _mutationRate)
                     {
                         int intLetter = Convert.ToInt32(p1.genes[i]);
                         intLetter = ((intLetter + 1) - 97) % (p1.baseTypeCount - 97);
-                        p1.genes[genomeChoice][i] = (char)(intLetter + 97);
+                        bases[i] = (char)(intLetter + 97);
                     }
                 }
-
+                p1.setGene(genomeChoice, new string(bases));
                 break;
 
             //if chosen, gene is tweaked by an amount determined by gaussian mean = 0 variance = sigma
             case "gaussianConvolution":
                 break;
         }
-        p1.genome[genomeChoice] = new string(p1.genes[genomeChoice]);
+
+        return p1;
+
     }
 }
 

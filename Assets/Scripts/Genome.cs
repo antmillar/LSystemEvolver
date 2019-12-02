@@ -9,6 +9,12 @@ public class Genome {
 	private float mutateRate;
     public int baseTypeCount;
 
+    public void setGene(int geneIndex, string value)
+    {
+        genome[geneIndex] = value;
+        genes[geneIndex] = value.ToCharArray();
+    }
+
     //constructor for genome from parent phenotype
     public Genome(string[] parentGenome)
     {

@@ -89,6 +89,7 @@ public class RuleSet
     public float _angle;
     public string _category;
 
+    [JsonConstructor]
     public RuleSet(string category, string axiom, string alphabet, float angle){
 
         _category = category;
@@ -97,6 +98,18 @@ public class RuleSet
         _rules = new Dictionary<string, string>();
         _terminals = new Dictionary<string, string>();
         _alphabet = alphabet;
+        _valid = true;
+    }
+
+    //copy constructor
+    public RuleSet(RuleSet rs)
+    {
+        _category = rs._category;
+        _axiom = rs._axiom;
+        _angle = rs._angle;
+        _rules = new Dictionary<string, string>(rs._rules);
+        _terminals = new Dictionary<string, string>(rs._terminals);
+        _alphabet = rs._alphabet;
         _valid = true;
     }
 

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+
 
 public class Model
 {
@@ -28,7 +30,8 @@ public class Model
         for (int i = 0; i < _childCount; i++)
         {
             //get the rule sets for samples from DB
-            _rulesets[i] = systemsJSON[(i % 4).ToString()];
+            RuleSet tempRS = new RuleSet(systemsJSON[(i % 4).ToString()]);
+            _rulesets[i] = tempRS;
             meshes[i] = MeshFromRuleset(_rulesets[i]);
             EncodeSampleLSystems(i);
         }
@@ -89,29 +92,36 @@ public class Model
     }
 
     //converts from genomes to _rulesets
-    public void Update_rulesets(int idx)
+    public void Update_rulesets()
     {
-        //convert initial genomes to lsystems
-        string specimenF = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome[0]);
-        string specimenG = geneticAlgo.Encoder.Decode(geneticAlgo.Population._genomes[idx].genome[1]);
+        for (int i = 0; i < _childCount; i++)
+        {
+            //convert initial genomes to lsystems
+            int j = i;
+            var tempGenome0 = geneticAlgo.Population._genomes[j].genome[0];
+            var tempGenome1 = geneticAlgo.Population._genomes[j].genome[1];
 
-        //change the ruleset rules according to evolution
-        var ruleSet = _rulesets[idx];
-        ruleSet._rules["F"] = specimenF;
-        ruleSet._rules["G"] = specimenG;
+            string specimenF = geneticAlgo.Encoder.Decode(tempGenome0);
+            string specimenG = geneticAlgo.Encoder.Decode(tempGenome1);
 
-        GameObject.Find("TextCaption" + idx.ToString()).GetComponent<Text>().text = "F -> " + string.Join("", specimenF) + "\n" + "G -> " + string.Join("", specimenG);
+            ////change the ruleset rules according to evolution
+
+            _rulesets[j]._rules["F"] = specimenF;
+            _rulesets[j]._rules["G"] = specimenG;
+
+         }
     }
 
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration(string inputSelection)
     {
         geneticAlgo.NextGeneration(inputSelection);
+        Update_rulesets();
 
         for (int i = 0; i < _childCount; i++)
         {
-            Update_rulesets(i);
-            meshes[i] = MeshFromRuleset(_rulesets[i]);
+            int j = i;
+            meshes[i] = MeshFromRuleset(_rulesets[j]);
         }
 
     }
