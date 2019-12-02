@@ -91,7 +91,6 @@ public class Population
     {
         for (int i = 0; i < _size; i++)
         {
-            Debug.Log("inside " + samplePopulation[i].Length);
             _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]); //adds samples to the population loops around the samples
         }
         _generation++;
@@ -438,13 +437,15 @@ public class Mutation
 
                 for (int i = 0; i < p1.genome[genomeChoice].Length; i++)
                 {
-                    System.Random r = new System.Random(seed.Next(i));
-
+                    System.Random r = new System.Random(seed.Next());
                     bases[i] = p1.genome[genomeChoice][i];
 
                     //mutates based on the mutationRate
-                    if (r.NextDouble() < _mutationRate)
+                    double test = r.NextDouble();
+                    Debug.Log(test);
+                    if (test < _mutationRate)
                     {
+                        Debug.Log("mutate");
                         int randomChoice = r.Next(97, 97 + p1.baseTypeCount);
                         bases[i] = (char)(randomChoice); //if mutate overwrite it
                     }

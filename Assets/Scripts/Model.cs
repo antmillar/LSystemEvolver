@@ -11,9 +11,11 @@ public class Model
     int _childCount;
     Encoder _encode;
     string[][] _sampleGenomes;
+    float _mutationRate;
 
-    public Model(int childCount)
+    public Model(int childCount, float mutationRate)
     {
+        _mutationRate = mutationRate;
         _childCount = childCount;
         _sampleGenomes = new string[_childCount][];
         _encode = new Encoder();
@@ -50,7 +52,7 @@ public class Model
             _sampleGenomes[idx][i] = _encode.Encode(rule);
         }
 
-        Debug.Log(_sampleGenomes[idx].Length);
+
 
         //foreach (KeyValuePair<string, string> entry in _rulesets[idx]._rules)
         //{
@@ -104,7 +106,7 @@ public class Model
         Population population = new Population(16, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
-        Mutation mutation = new Mutation(mutateType, 0.0f);
+        Mutation mutation = new Mutation(mutateType, _mutationRate);
 
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }

@@ -5,13 +5,14 @@ public class Controller : MonoBehaviour {
 
     Model model;
     View view;
+    [SerializeField] float _mutationRate;
 
     private void Start () {
 
         int childCount = 16;
         view = new View(childCount);
-        model = new Model(childCount);
-
+        model = new Model(childCount, _mutationRate);
+        
         view.MeshesToMeshFilters(model.meshes);
         view.UpdateGuiText(model._rulesets, model.geneticAlgo.Population._generation);
     }
@@ -46,8 +47,16 @@ public class Controller : MonoBehaviour {
 
 
 //sort out how the genome allowed bases, the rule translation etc interlinked
+//add validation for the string of acceptable icons
+//remove the terminals and just don't draw with the turtle
 
-//samplePopulation[i % samplePopulation.Length]);
+//add bracketing to strings
+//allow genomes to change number of genes during crossover
+
+//allow the angle to be a rule
+
+
+
 
 
 

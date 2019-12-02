@@ -63,7 +63,7 @@ public static class InitialiseDB
 
         RuleSet rs5 = new RuleSet("Fractal", "F-F-F-F", "FGH", 90f);
         rs5.AddRule("F", "F-FF-F");
-        rs5.AddRule("G", "F-Ff[F-FHF+F");
+        rs5.AddRule("G", "F-FfF-FHF+F");
         rs5.AddRule("H", "F-FG++-F");
         rs5.AddTerminal("G", "F");
         rs5.AddTerminal("H", "F");

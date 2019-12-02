@@ -150,9 +150,9 @@ class Turtle
 
         //draw a rectangle around the start and end points to represent a line
         Vector3 startL = start - _lineRadius * lineNormal;
-        Vector3 endL = startL + lineVector;
+        Vector3 endL = startL + lineVector - Vector3.forward;
 
-        Vector3 startR = start + _lineRadius * lineNormal;
+        Vector3 startR = start + _lineRadius * lineNormal - Vector3.forward;
         Vector3 endR = startR + lineVector;
 
         Vector3[] vertices = new Vector3[4];
