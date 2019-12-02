@@ -88,10 +88,12 @@ public class RuleSet
     public bool _valid;
     public float _angle;
     public string _category;
+    public int _ruleCount;
 
     [JsonConstructor]
     public RuleSet(string category, string axiom, string alphabet, float angle){
 
+        _ruleCount = 0;
         _category = category;
         _axiom = axiom;
         _angle = angle;
@@ -104,6 +106,7 @@ public class RuleSet
     //copy constructor
     public RuleSet(RuleSet rs)
     {
+        _ruleCount = rs._ruleCount;
         _category = rs._category;
         _axiom = rs._axiom;
         _angle = rs._angle;
@@ -118,7 +121,7 @@ public class RuleSet
         if(_alphabet.Contains(input)){
 
             _rules.Add(input, output);
-
+            _ruleCount++;
         } else {
             
             Debug.Log("ERROR : " + input + " not in symbol set, rule not added to rule set");

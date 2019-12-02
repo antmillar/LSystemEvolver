@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using UnityEngine;
 
 //represents genome as an array of integers/
 //can have more than one array if there objects are more complex
@@ -28,20 +29,20 @@ public class Genome {
         //   genes[i] = parentGenome[i].ToCharArray();
         //}
 
-        baseTypeCount = 8;
+        baseTypeCount = 9;
     }
 
     //constructor for first random genotype by length
     public Genome(int length, int randomSeed){
 
-        int geneCount = 2; //HARCODEDEODOEDOE
+        //int geneCount = 2; //HARCODEDEODOEDOE
 
         //for (int i = 0; i < geneCount; i++)
         //{
         //    genes[i] = new char[length];
         //}
 
-        baseTypeCount = 8; //hard coded HACKY!
+        baseTypeCount = 9; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 
@@ -99,7 +100,14 @@ public class Genome {
 
 	public override string ToString()
 	{
-		return genome[0] + " / " + genome[1];
+        string outputString = "";
+
+        for (int i = 0; i < genome.Length; i++)
+        {
+            outputString += genome[i] + " ";
+        }
+
+        return outputString;
 	}
 
     //not implemented properly

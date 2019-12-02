@@ -57,9 +57,17 @@ public static class InitialiseDB
         RuleSet rs4 = new RuleSet("Fractal", "F-F-F-F", "FG", 90f);
         rs4.AddRule("F", "F-FF-F");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
-        rs4.AddRule("G", "F-FF--F-F");
+        //rs4.AddRule("G", "F-FF--F-F");
         rs4.AddTerminal("G", "F");
         rs4.Validate();
+
+        RuleSet rs5 = new RuleSet("Fractal", "F-F-F-F", "FGH", 90f);
+        rs5.AddRule("F", "F-FF-F");
+        rs5.AddRule("G", "F-Ff[F-FHF+F");
+        rs5.AddRule("H", "F-FG++-F");
+        rs5.AddTerminal("G", "F");
+        rs5.AddTerminal("H", "F");
+        rs5.Validate();
 
         //RuleSet rs4 = new RuleSet("Tree", "G", "FG", 45f);
         //rs4.AddRule("F", "FF");
@@ -67,11 +75,11 @@ public static class InitialiseDB
         //rs4.AddTerminal("G", "");
         //rs4.Validate();
 
-        RuleSet rs5 = new RuleSet("Tree", "G", "FG", 25f);
-        rs5.AddRule("F", "FF");
-        rs5.AddRule("G", "F+[[G]-G]-F[-FG]+G");
-        rs5.AddTerminal("G", "");
-        rs5.Validate();
+        //RuleSet rs5 = new RuleSet("Tree", "G", "FG", 25f);
+        //rs5.AddRule("F", "FF");
+        //rs5.AddRule("G", "F+[[G]-G]-F[-FG]+G");
+        //rs5.AddTerminal("G", "");
+        //rs5.Validate();
 
         RuleSet rs6 = new RuleSet("Fractal", "FX", "FXY", 90f);
         rs6.AddRule("X", "X+YF+");

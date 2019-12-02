@@ -8,7 +8,6 @@ public class Model
     public RuleSet[] _rulesets;
     public Mesh[] meshes;
     public GeneticAlgo geneticAlgo;
-
     int _childCount;
     Encoder _encode;
     string[][] _sampleGenomes;
@@ -30,7 +29,7 @@ public class Model
         for (int i = 0; i < _childCount; i++)
         {
             //get the rule sets for samples from DB
-            RuleSet tempRS = new RuleSet(systemsJSON[(i % 4).ToString()]);
+            RuleSet tempRS = new RuleSet(systemsJSON[(i % 5).ToString()]);
             _rulesets[i] = tempRS;
             meshes[i] = MeshFromRuleset(_rulesets[i]);
             EncodeSampleLSystems(i);
@@ -42,17 +41,36 @@ public class Model
     //encodes the initial sample l systems to genomes
     public void EncodeSampleLSystems(int idx)
     {
-        //encodes the chosen lsystem to a genome
-        string ruleF = _rulesets[idx]._rules["F"];
-        string ruleG = _rulesets[idx]._rules["G"];
+        string ruleNames = "FGH";
+        _sampleGenomes[idx] = new string[_rulesets[idx]._ruleCount];
 
-        string genomeF = _encode.Encode(ruleF);
-        string genomeG = _encode.Encode(ruleG);
+        for (int i = 0; i < _rulesets[idx]._ruleCount; i++)
+        {
+            string rule = _rulesets[idx]._rules[ruleNames[i].ToString()];
+            _sampleGenomes[idx][i] = _encode.Encode(rule);
+        }
 
-        //need to sort this out
-        _sampleGenomes[idx] = new string[2];
-        _sampleGenomes[idx][0] = genomeF;
-        _sampleGenomes[idx][1] = genomeG;
+        Debug.Log(_sampleGenomes[idx].Length);
+
+        //foreach (KeyValuePair<string, string> entry in _rulesets[idx]._rules)
+        //{
+        //    _tempGenomes.Add(_encode.Encode(entry.Value));
+
+        //    // do something with entry.Value or entry.Key
+        //}
+
+
+        ////encodes the chosen lsystem to a genome
+        //string ruleF = _rulesets[idx]._rules["F"];
+        //string ruleG = _rulesets[idx]._rules["G"];
+
+        //string genomeF = _encode.Encode(ruleF);
+        //string genomeG = _encode.Encode(ruleG);
+
+        ////need to sort this out
+        
+        //_sampleGenomes[idx][0] = genomeF;
+        //_sampleGenomes[idx][1] = genomeG;
     }
 
     //generates a mesh from a l system ruleset
@@ -86,37 +104,56 @@ public class Model
         Population population = new Population(16, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
-        Mutation mutation = new Mutation(mutateType, 0.5f);
+        Mutation mutation = new Mutation(mutateType, 0.0f);
 
         geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
     //converts from genomes to _rulesets
-    public void Update_rulesets()
+    public void DecodeGenomes()
     {
         for (int i = 0; i < _childCount; i++)
         {
-            //convert initial genomes to lsystems
-            int j = i;
-            var tempGenome0 = geneticAlgo.Population._genomes[j].genome[0];
-            var tempGenome1 = geneticAlgo.Population._genomes[j].genome[1];
+            ////convert initial genomes to lsystems
+            //var tempGenome0 = geneticAlgo.Population._genomes[i].genome[0];
+            //var tempGenome1 = geneticAlgo.Population._genomes[i].genome[1];
 
-            string specimenF = geneticAlgo.Encoder.Decode(tempGenome0);
-            string specimenG = geneticAlgo.Encoder.Decode(tempGenome1);
+            //string specimenF = geneticAlgo.Encoder.Decode(tempGenome0);
+            //string specimenG = geneticAlgo.Encoder.Decode(tempGenome1);
 
-            ////change the ruleset rules according to evolution
+            //////change the ruleset rules according to evolution
 
-            _rulesets[j]._rules["F"] = specimenF;
-            _rulesets[j]._rules["G"] = specimenG;
+            //_rulesets[i]._rules["F"] = specimenF;
+            //_rulesets[i]._rules["G"] = specimenG;
 
-         }
+            //create a new ruleset with all available parameters
+            string ruleNames = "FGH";
+
+            //why are the genomes changing in length???
+            //need a new function called genomeToRuleset
+
+            RuleSet rsTemp = new RuleSet("Fractal", "F-F-F-F", "FGH", 90f);
+            rsTemp.AddTerminal("G", "F");
+            rsTemp.AddTerminal("H", "F");
+
+            for (int j = 0; j < geneticAlgo.Population._genomes[i].genome.Length; j++)
+            {
+                var tempGenome = geneticAlgo.Population._genomes[i].genome[j];
+                string specimen = geneticAlgo.Encoder.Decode(tempGenome);
+                rsTemp.AddRule(ruleNames[j].ToString(), specimen);
+            }
+
+            rsTemp.Validate();
+            _rulesets[i] = rsTemp;
+
+        }
     }
 
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration(string inputSelection)
     {
         geneticAlgo.NextGeneration(inputSelection);
-        Update_rulesets();
+        DecodeGenomes();
 
         for (int i = 0; i < _childCount; i++)
         {

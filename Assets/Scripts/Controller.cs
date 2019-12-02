@@ -45,6 +45,9 @@ public class Controller : MonoBehaviour {
 //allow different amounts of rules
 
 
+//sort out how the genome allowed bases, the rule translation etc interlinked
+
+//samplePopulation[i % samplePopulation.Length]);
 
 
 

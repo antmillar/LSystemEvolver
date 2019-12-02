@@ -15,7 +15,7 @@ public class Encoder : IEncoder<string>
 {
     public string Encode(string rule)
     {
-        string reducedLetters = "Ff-+|!\"G";
+        string reducedLetters = "Ff-+|!\"GH";
         char[] chars = new char[rule.Length];
 
         for (int i = 0; i < rule.Length; i++)
@@ -25,14 +25,12 @@ public class Encoder : IEncoder<string>
 
         string output = new string(chars);
 
-        Debug.Log("encoded lsystem rule is " + output);
-
         return output;
     }
 
     public string Decode(string genomeString)
     {
-        string reducedLetters = "Ff-+|!\"G";
+        string reducedLetters = "Ff-+|!\"GH";
         string rule = "";
         char[] chars = genomeString.ToCharArray();
         for (int i = 0; i < genomeString.Length; i++)
@@ -93,6 +91,7 @@ public class Population
     {
         for (int i = 0; i < _size; i++)
         {
+            Debug.Log("inside " + samplePopulation[i].Length);
             _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]); //adds samples to the population loops around the samples
         }
         _generation++;
@@ -316,15 +315,14 @@ public class CrossOver
             //evolve them
             Cross(p._genomes[i], p._genomes[i + 1], p._variableGenomeLength, i);
             //maybe could write test to check if variable genome lengths
-            Debug.Log(p._genomes[i].genome[0]);
-            Debug.Log(p._genomes[i + 1].genome[0]);
         }
     }
 
     //takes two genomes as input and mutates them
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength, int seed)
     {
-        int genomeChoice = UnityEngine.Random.Range(0, p1.genome.Length);
+        int minGenes = Math.Min(p1.genome.Length, p2.genome.Length);
+        int genomeChoice = UnityEngine.Random.Range(0, minGenes);
 
         //these two random variables are the same.......
         System.Random random = new System.Random(seed);
@@ -333,14 +331,13 @@ public class CrossOver
         //int xPt1 = UnityEngine.Random.Range(0, p1.genome[genomeChoice].Length); //1st crossover pt on first genome
         //int yPt1 = UnityEngine.Random.Range(0, p2.genome[genomeChoice].Length); //1st crossover pt on second genome
 
-        Debug.Log(variableGenomeLength);
-
         //if genomes all have the same length then cross at same point to maintain this.
         if (!variableGenomeLength) { yPt1 = xPt1; } //if all genomes the same length, use the same 1st crossover pt
 
         //if genomes can be different lengths, need to limit the crossing point to the shortest genome
         if (variableGenomeLength) { yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1; }
-        Debug.Log(xPt1.ToString() + " " + yPt1.ToString());
+
+        Debug.Log("first cross pt " + xPt1.ToString() + " " + yPt1.ToString());
         string crossedString1, crossedString2;
 
         switch (_crossoverType)
@@ -426,9 +423,7 @@ public class Mutation
         {
             System.Random seed = new System.Random(i);
             Mutate(p._genomes[i], seed);
-
         }
-
     }
 
     //takes genome as input and mutates it
@@ -438,7 +433,6 @@ public class Mutation
         char[] bases = new char[p1.genome[genomeChoice].Length];
         switch (_mutationType)
         {
-
             //if chosen, gene is mutated to random choice in range
             case "randomChoice":
 

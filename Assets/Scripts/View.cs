@@ -35,8 +35,13 @@ class View
         for (int i = 0; i < _childCount; i++)
         {
             Text textCaption = GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>();
-            textCaption.text = "F -> " + ruleSets[i]._rules["F"] + "\n" + "G -> " + ruleSets[i]._rules["G"];
+            textCaption.text = "";
+            string ruleNames = "FGH";
 
+            for (int j = 0; j < ruleSets[i]._ruleCount; j++)
+            {
+                textCaption.text += ruleNames[j] + " -> " + ruleSets[i]._rules[ruleNames[j].ToString()] + "\n";
+            }
         }
 
         Text textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
