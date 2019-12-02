@@ -30,7 +30,6 @@ public class Controller : MonoBehaviour {
         view.MeshesToMeshFilters(model.meshes);
         view.UpdateGuiText(model._rulesets, model.geneticAlgo.Population._generation);
     }
-
 }
 
 //subdivision as rescaling, read catmull clark??
@@ -39,11 +38,12 @@ public class Controller : MonoBehaviour {
 
 //now it's possible to have two rules but all must have two rules
 
+//get rid of the genes/ char[][]
+//random seeds
+//can i replace xpt1 and ypt1 with one variable?
 
+//allow different amounts of rules
 
-//sort out why all the kids are the same.... even with mutation?!
-//allow variable length rules (genomeChoice equals max??)
-//allow mixing of rules (but this is problem is
 
 
 

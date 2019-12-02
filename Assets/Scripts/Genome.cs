@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 
 //represents genome as an array of integers/
 //can have more than one array if there objects are more complex
 public class Genome {
 
-	public char[][] genes;
+	//public char[][] genes;
 	public string[] genome;
 	private float mutateRate;
     public int baseTypeCount;
@@ -12,55 +13,70 @@ public class Genome {
     public void setGene(int geneIndex, string value)
     {
         genome[geneIndex] = value;
-        genes[geneIndex] = value.ToCharArray();
+        //genes[geneIndex] = value.ToCharArray();
     }
 
     //constructor for genome from parent phenotype
     public Genome(string[] parentGenome)
     {
         int geneCount = parentGenome.Length;
-        genome = parentGenome;
-        genes = new char[geneCount][];
+        genome = parentGenome.ToArray();
+        //genes = new char[geneCount][];
 
-        for (int i = 0; i < geneCount; i++)
-        {
-           genes[i] = parentGenome[i].ToCharArray();
-        }
+        //for (int i = 0; i < geneCount; i++)
+        //{
+        //   genes[i] = parentGenome[i].ToCharArray();
+        //}
 
         baseTypeCount = 8;
-
     }
+
     //constructor for first random genotype by length
     public Genome(int length, int randomSeed){
 
         int geneCount = 2; //HARCODEDEODOEDOE
 
-        for (int i = 0; i < geneCount; i++)
-        {
-            genes[i] = new char[length];
-        }
+        //for (int i = 0; i < geneCount; i++)
+        //{
+        //    genes[i] = new char[length];
+        //}
 
         baseTypeCount = 8; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 
+    //copy constructor
+    public Genome(Genome g)
+    {
+        //genes = g.genes.ToArray();
+
+        //for (int i = 0; i < genes.Length; i++)
+        //{
+        //    genes[i] = genes[i].ToArray();
+        //}
+
+        genome = g.genome.ToArray();
+        mutateRate = g.mutateRate;
+        baseTypeCount = g.baseTypeCount;
+    }
+
     public void GenerateRandomGenome(int length, int randomSeed)
     {
-        int geneCount = 2; //HARCODEDEODOEDOE
         System.Random randomInt = new System.Random(randomSeed);
-        for (int j = 0; j < geneCount; j++)
+        for (int j = 0; j < genome.Length; j++)
         { //generate a new random genome with genes a-z
+            char[] bases = new char[length];
+
             for (int i = 0; i < length; i++)
             {
                 //issue here with timing and random being same
                 int randInt = randomInt.Next(97, 97 + baseTypeCount); //MODULEO!!!
-                genes[j][i] = (char)randInt;
+                bases[i] = (char)randInt;
 
             }
-            genome[j] = new string(genes[j]);
+            genome[j] = new string(bases);
         }
     }
-
 
 	public int Fitness(string targetString){
 
@@ -86,7 +102,7 @@ public class Genome {
 		return genome[0] + " / " + genome[1];
 	}
 
-    //unused
+    //not implemented properly
 	public double randDist(){
 
 		System.Random rand = new System.Random(); //reuse this if you are generating many
