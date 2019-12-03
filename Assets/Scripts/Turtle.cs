@@ -82,6 +82,11 @@ class Turtle
                     _widthRatio *= 0.75f;
                     break;
 
+                case '£': //rescale line width
+
+                    _widthRatio *= 1.25f;
+                    break;
+
                 case '&': //pitch down by angle
 
                     Pitch(-90f);

@@ -14,48 +14,26 @@ public class Genome {
     public void setGene(int geneIndex, string value)
     {
         genome[geneIndex] = value;
-        //genes[geneIndex] = value.ToCharArray();
     }
 
     //constructor for genome from parent phenotype
-    public Genome(string[] parentGenome)
+    public Genome(string[] parentGenome, string symbols)
     {
         int geneCount = parentGenome.Length;
         genome = parentGenome.ToArray();
-        //genes = new char[geneCount][];
-
-        //for (int i = 0; i < geneCount; i++)
-        //{
-        //   genes[i] = parentGenome[i].ToCharArray();
-        //}
-
-        baseTypeCount = 11;
+        baseTypeCount = symbols.Length;
     }
 
     //constructor for first random genotype by length
-    public Genome(int length, int randomSeed){
+    public Genome(int length, string symbols, int randomSeed){
 
-        //int geneCount = 2; //HARCODEDEODOEDOE
-
-        //for (int i = 0; i < geneCount; i++)
-        //{
-        //    genes[i] = new char[length];
-        //}
-
-        baseTypeCount = 11; //hard coded HACKY!
+        baseTypeCount = symbols.Length;
         GenerateRandomGenome(length, randomSeed);
 	}
 
     //copy constructor
     public Genome(Genome g)
     {
-        //genes = g.genes.ToArray();
-
-        //for (int i = 0; i < genes.Length; i++)
-        //{
-        //    genes[i] = genes[i].ToArray();
-        //}
-
         genome = g.genome.ToArray();
         mutateRate = g.mutateRate;
         baseTypeCount = g.baseTypeCount;

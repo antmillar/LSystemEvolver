@@ -6,21 +6,24 @@ public class Controller : MonoBehaviour {
     Model model;
     View view;
     [SerializeField] float _mutationRate;
+    [SerializeField] Material _material;
 
     private void Start () {
 
         int childCount = 16;
-        view = new View(childCount);
+        view = new View(childCount, _material);
         model = new Model(childCount, _mutationRate);
         
         view.MeshesToMeshFilters(model.meshes);
-        view.UpdateGuiText(model._rulesets, model.geneticAlgo.Population._generation);
+        view.UpdateGuiText(model._rulesets, model.geneticAlgoRules.Population._generation);
     }
 
     public void OnClickEvolve()
     {
         NextGeneration();
     }
+
+
 
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration()
@@ -29,7 +32,13 @@ public class Controller : MonoBehaviour {
 
         model.NextGeneration(inputSelection);
         view.MeshesToMeshFilters(model.meshes);
-        view.UpdateGuiText(model._rulesets, model.geneticAlgo.Population._generation);
+        view.UpdateGuiText(model._rulesets, model.geneticAlgoRules.Population._generation);
+    }
+
+    public void Update()
+    {
+        if (Input.GetMouseButtonDown(1))
+            view.OnClickZoomOut();
     }
 }
 
@@ -55,7 +64,6 @@ public class Controller : MonoBehaviour {
 
 //allow the angle to be a rule
 
-    //l system axiom is always the same
 
 
 //figure out some seed genomes, what are the basic units of a form??

@@ -7,17 +7,18 @@ public class Model
 {
     public RuleSet[] _rulesets;
     public Mesh[] meshes;
-    public GeneticAlgo geneticAlgo;
+    public GeneticAlgo geneticAlgoRules, geneticAlgoAxioms;
     int _childCount;
-    Encoder _encode;
-    string[][] _sampleGenomes;
+    Encoder _encode, _encodeAxiom;
+    string[][] _sampleRules, _sampleAxioms;
     float _mutationRate;
+
 
     public Model(int childCount, float mutationRate)
     {
         _mutationRate = mutationRate;
         _childCount = childCount;
-        _sampleGenomes = new string[_childCount][];
+
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
 
@@ -26,7 +27,11 @@ public class Model
         
         var systemsJSON = ldb.ReadFromFile();
 
-        _encode = new Encoder("Ff-+|!\"GH^&");
+        _sampleRules = new string[_childCount][];
+        _sampleAxioms = new string[_childCount][];
+
+        _encode = new Encoder("Ff-+|!£\"GH^&");
+        _encodeAxiom = new Encoder("FGH");
 
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < _childCount; i++)
@@ -35,45 +40,33 @@ public class Model
             RuleSet tempRS = new RuleSet(systemsJSON[(i % 6).ToString()]);
             _rulesets[i] = tempRS;
             meshes[i] = MeshFromRuleset(_rulesets[i]);
-            EncodeSampleLSystems(i);
+            EncodeSamples(i);
         }
 
-        CreateGA(_sampleGenomes);
+        geneticAlgoRules = CreateGA(_sampleRules);
+        geneticAlgoAxioms = CreateGA(_sampleAxioms);
     }
 
     //encodes the initial sample l systems to genomes
-    public void EncodeSampleLSystems(int idx)
+    public void EncodeSamples(int idx)
     {
+
+        //encoding the Rules
         string ruleNames = "FGH";
-        _sampleGenomes[idx] = new string[_rulesets[idx]._ruleCount];
+        _sampleRules[idx] = new string[_rulesets[idx]._ruleCount];
 
         for (int i = 0; i < _rulesets[idx]._ruleCount; i++)
         {
             string rule = _rulesets[idx]._rules[ruleNames[i].ToString()];
-            _sampleGenomes[idx][i] = _encode.Encode(rule);
+            _sampleRules[idx][i] = _encode.Encode(rule);
         }
 
+        //encoding the Axioms
 
+        _sampleAxioms[idx] = new string[1];
 
-        //foreach (KeyValuePair<string, string> entry in _rulesets[idx]._rules)
-        //{
-        //    _tempGenomes.Add(_encode.Encode(entry.Value));
-
-        //    // do something with entry.Value or entry.Key
-        //}
-
-
-        ////encodes the chosen lsystem to a genome
-        //string ruleF = _rulesets[idx]._rules["F"];
-        //string ruleG = _rulesets[idx]._rules["G"];
-
-        //string genomeF = _encode.Encode(ruleF);
-        //string genomeG = _encode.Encode(ruleG);
-
-        ////need to sort this out
-        
-        //_sampleGenomes[idx][0] = genomeF;
-        //_sampleGenomes[idx][1] = genomeG;
+        string axiom = _rulesets[idx]._axiom;
+        _sampleAxioms[idx][0] = _encode.Encode(axiom);
     }
 
     //generates a mesh from a l system ruleset
@@ -94,7 +87,7 @@ public class Model
     }
 
     //sets up the initial GA
-    public void CreateGA(string[][] _sampleGenomes)
+    public GeneticAlgo CreateGA(string[][] _sampleGenomes)
     {
         System.Random r = new System.Random(Time.frameCount);
         //specify the numbers of genes to the population.
@@ -105,12 +98,12 @@ public class Model
 
         Encoder encoder = _encode;
         Fitness fitness = new Fitness("");
-        Population population = new Population(16, samplePopulation: _sampleGenomes, variableGenomeLength: true);
+        Population population = new Population(16, encoder._symbols, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
         Mutation mutation = new Mutation(mutateType, _mutationRate);
 
-        geneticAlgo = new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
+        return new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
     //converts from genomes to _rulesets
@@ -118,32 +111,19 @@ public class Model
     {
         for (int i = 0; i < _childCount; i++)
         {
-            ////convert initial genomes to lsystems
-            //var tempGenome0 = geneticAlgo.Population._genomes[i].genome[0];
-            //var tempGenome1 = geneticAlgo.Population._genomes[i].genome[1];
+            var temp = geneticAlgoAxioms.Population._genomes[i].genome[0];
+            string evolvedAxiom = geneticAlgoAxioms.Encoder.Decode(temp);
+            Debug.Log(evolvedAxiom);
 
-            //string specimenF = geneticAlgo.Encoder.Decode(tempGenome0);
-            //string specimenG = geneticAlgo.Encoder.Decode(tempGenome1);
-
-            //////change the ruleset rules according to evolution
-
-            //_rulesets[i]._rules["F"] = specimenF;
-            //_rulesets[i]._rules["G"] = specimenG;
-
-            //create a new ruleset with all available parameters
             string ruleNames = "FGH";
-
-            //why are the genomes changing in length???
-            //need a new function called genomeToRuleset
-
-            RuleSet rsTemp = new RuleSet("Fractal", "G", "FGH", 90f);
+            RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, "FGH", 90f);
             rsTemp.AddTerminal("G", "F");
             rsTemp.AddTerminal("H", "F");
 
-            for (int j = 0; j < geneticAlgo.Population._genomes[i].genome.Length; j++)
+            for (int j = 0; j < geneticAlgoRules.Population._genomes[i].genome.Length; j++)
             {
-                var tempGenome = geneticAlgo.Population._genomes[i].genome[j];
-                string specimen = geneticAlgo.Encoder.Decode(tempGenome);
+                var tempGenome = geneticAlgoRules.Population._genomes[i].genome[j];
+                string specimen = geneticAlgoRules.Encoder.Decode(tempGenome);
                 rsTemp.AddRule(ruleNames[j].ToString(), specimen);
             }
 
@@ -156,7 +136,8 @@ public class Model
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration(string inputSelection)
     {
-        geneticAlgo.NextGeneration(inputSelection);
+        geneticAlgoRules.NextGeneration(inputSelection);
+        //geneticAlgoAxioms.NextGeneration(inputSelection);
         DecodeGenomes();
 
         for (int i = 0; i < _childCount; i++)

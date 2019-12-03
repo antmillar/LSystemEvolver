@@ -13,7 +13,7 @@ interface IEncoder<T>
 //converts from a LSystem to string based genome
 public class Encoder : IEncoder<string>
 {
-    string _symbols;
+    public string _symbols;
     public Encoder(string symbols)
     {
        _symbols = symbols;
@@ -49,7 +49,7 @@ public class Encoder : IEncoder<string>
 
 public class Population
 {
-    public string _name;
+    public string _name, _symbols;
 
     public int _generation = 0;
     public int _bestFitness;
@@ -61,10 +61,11 @@ public class Population
 
     public bool _variableGenomeLength;
 
-    public Population(int size, string target = "", string[][] samplePopulation = null, bool variableGenomeLength = false)
+    public Population(int size, string symbols, string target = "", string[][] samplePopulation = null, bool variableGenomeLength = false)
     {
         _size = size;
         _genomes = new Genome[_size];
+        _symbols = symbols;
 
         if (samplePopulation != null)
         {
@@ -85,7 +86,7 @@ public class Population
 
         for (int i = 0; i < _size; i++)
         {
-            _genomes[i] = new Genome(target.Length, randomInt.Next());
+            _genomes[i] = new Genome(target.Length, _symbols, randomInt.Next());
         }
         _generation++;
     }
@@ -94,7 +95,7 @@ public class Population
     {
         for (int i = 0; i < _size; i++)
         {
-            _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length]); //adds samples to the population loops around the samples
+            _genomes[i] = new Genome(samplePopulation[i % samplePopulation.Length], _symbols); //adds samples to the population loops around the samples
         }
         _generation++;
     }
@@ -312,8 +313,8 @@ public class CrossOver
         {
             //add the two new children to the new genomes for this generation (have been shuffled previously)
 
-            p._genomes[i] = new Genome(selectionStack.Pop().genome);
-            p._genomes[i + 1] = new Genome(selectionStack.Pop().genome);
+            p._genomes[i] = new Genome(selectionStack.Pop());
+            p._genomes[i + 1] = new Genome(selectionStack.Pop());
             //evolve them
             Cross(p._genomes[i], p._genomes[i + 1], p._variableGenomeLength, i);
             //maybe could write test to check if variable genome lengths
