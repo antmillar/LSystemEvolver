@@ -47,15 +47,17 @@ public static class InitialiseDB
         rs2.AddTerminal("G", "F");
         rs2.Validate();
 
-        RuleSet rs3 = new RuleSet("Fractal", "F-F-F-F", "FG", 90f);
-        rs3.AddRule("F", "F-FF-|F-F");
+        RuleSet rs3 = new RuleSet("Fractal", "-G", "FGH", 90f);
+        rs3.AddRule("F", "F");
+        rs3.AddRule("G", "+H-GG-H+");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
-        rs3.AddRule("G", "F-FF--F-F");
+        rs3.AddRule("H", "-G+HH+G-");
         rs3.AddTerminal("G", "F");
+        rs3.AddTerminal("H", "F");
         rs3.Validate();
 
-        RuleSet rs4 = new RuleSet("Fractal", "F-F-F-F", "FG", 90f);
-        rs4.AddRule("F", "F-FF-F");
+        RuleSet rs4 = new RuleSet("Fractal", "F", "FG", 90f);
+        rs4.AddRule("F", "F");
         //rs3.AddRule("F", "F-Ff[F-F]-F+F");
         //rs4.AddRule("G", "F-FF--F-F");
         rs4.AddTerminal("G", "F");
@@ -69,6 +71,8 @@ public static class InitialiseDB
         rs5.AddTerminal("H", "F");
         rs5.Validate();
 
+
+
         //RuleSet rs4 = new RuleSet("Tree", "G", "FG", 45f);
         //rs4.AddRule("F", "FF");
         //rs4.AddRule("G", "F+[[G]-G]-F[-FG]+G");
@@ -81,12 +85,20 @@ public static class InitialiseDB
         //rs5.AddTerminal("G", "");
         //rs5.Validate();
 
-        RuleSet rs6 = new RuleSet("Fractal", "FX", "FXY", 90f);
-        rs6.AddRule("X", "X+YF+");
-        rs6.AddRule("Y", "-FX-Y");
-        rs6.AddTerminal("X", "");
-        rs6.AddTerminal("Y", "");
+        RuleSet rs6 = new RuleSet("Hilbert 3D", "G", "FGH", 90f);
+        rs6.AddRule("F", "F");
+        rs6.AddRule("G", "G-F+HFH+F-&F^-F+&&GFG+F+G");
+        rs6.AddRule("H", "&F^HFG^F^^^-F-F^H+F+G^F^");
+        //rs6.AddRule("I", "-FX-Y");
+        //rs6.AddRule("J", "-FX-Y");
+        rs6.AddTerminal("G", "F");
+        rs6.AddTerminal("H", "F");
+        //rs6.AddTerminal("I", "F");
+        //rs6.AddTerminal("J", "F");
         rs6.Validate();
+
+
+
 
         var DB = new LSystemDB();
         DB.AddSystem(rs);

@@ -18,7 +18,6 @@ public class Model
         _mutationRate = mutationRate;
         _childCount = childCount;
         _sampleGenomes = new string[_childCount][];
-        _encode = new Encoder();
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
 
@@ -27,11 +26,13 @@ public class Model
         
         var systemsJSON = ldb.ReadFromFile();
 
+        _encode = new Encoder("Ff-+|!\"GH^&");
+
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < _childCount; i++)
         {
             //get the rule sets for samples from DB
-            RuleSet tempRS = new RuleSet(systemsJSON[(i % 5).ToString()]);
+            RuleSet tempRS = new RuleSet(systemsJSON[(i % 6).ToString()]);
             _rulesets[i] = tempRS;
             meshes[i] = MeshFromRuleset(_rulesets[i]);
             EncodeSampleLSystems(i);
@@ -96,12 +97,13 @@ public class Model
     public void CreateGA(string[][] _sampleGenomes)
     {
         System.Random r = new System.Random(Time.frameCount);
+        //specify the numbers of genes to the population.
 
         string selectType = "god mode";
         string mutateType = "randomChoice";
         string crossType = "OnePt";
 
-        Encoder encoder = new Encoder();
+        Encoder encoder = _encode;
         Fitness fitness = new Fitness("");
         Population population = new Population(16, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
@@ -134,7 +136,7 @@ public class Model
             //why are the genomes changing in length???
             //need a new function called genomeToRuleset
 
-            RuleSet rsTemp = new RuleSet("Fractal", "F-F-F-F", "FGH", 90f);
+            RuleSet rsTemp = new RuleSet("Fractal", "G", "FGH", 90f);
             rsTemp.AddTerminal("G", "F");
             rsTemp.AddTerminal("H", "F");
 

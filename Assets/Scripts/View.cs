@@ -25,7 +25,7 @@ class View
         {
             _meshFilters[i].mesh = meshes[i];
             Vector3 bounds = meshes[i].bounds.size;
-            float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]);
+            float maxBound = Mathf.Max(bounds[0], bounds[1]); //leaving out the z axis for the moment
             _meshFilters[i].transform.localScale = Vector3.one / (maxBound);
         }
     }

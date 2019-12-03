@@ -29,7 +29,7 @@ public class Genome {
         //   genes[i] = parentGenome[i].ToCharArray();
         //}
 
-        baseTypeCount = 9;
+        baseTypeCount = 11;
     }
 
     //constructor for first random genotype by length
@@ -42,7 +42,7 @@ public class Genome {
         //    genes[i] = new char[length];
         //}
 
-        baseTypeCount = 9; //hard coded HACKY!
+        baseTypeCount = 11; //hard coded HACKY!
         GenerateRandomGenome(length, randomSeed);
 	}
 

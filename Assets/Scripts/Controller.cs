@@ -55,6 +55,10 @@ public class Controller : MonoBehaviour {
 
 //allow the angle to be a rule
 
+    //l system axiom is always the same
+
+
+//figure out some seed genomes, what are the basic units of a form??
 
 
 

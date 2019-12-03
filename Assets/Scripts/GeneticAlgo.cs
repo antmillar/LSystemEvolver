@@ -13,14 +13,18 @@ interface IEncoder<T>
 //converts from a LSystem to string based genome
 public class Encoder : IEncoder<string>
 {
+    string _symbols;
+    public Encoder(string symbols)
+    {
+       _symbols = symbols;
+    }
     public string Encode(string rule)
     {
-        string reducedLetters = "Ff-+|!\"GH";
         char[] chars = new char[rule.Length];
 
         for (int i = 0; i < rule.Length; i++)
         {
-            chars[i] = (char)(reducedLetters.IndexOf(rule[i]) + 97);
+            chars[i] = (char)(_symbols.IndexOf(rule[i]) + 97);
         }
 
         string output = new string(chars);
@@ -30,13 +34,12 @@ public class Encoder : IEncoder<string>
 
     public string Decode(string genomeString)
     {
-        string reducedLetters = "Ff-+|!\"GH";
         string rule = "";
         char[] chars = genomeString.ToCharArray();
         for (int i = 0; i < genomeString.Length; i++)
         {
             int index = (chars[i] - 97);
-            rule += reducedLetters[index].ToString();
+            rule += _symbols[index].ToString();
         }
 
         return rule;
@@ -442,10 +445,8 @@ public class Mutation
 
                     //mutates based on the mutationRate
                     double test = r.NextDouble();
-                    Debug.Log(test);
                     if (test < _mutationRate)
                     {
-                        Debug.Log("mutate");
                         int randomChoice = r.Next(97, 97 + p1.baseTypeCount);
                         bases[i] = (char)(randomChoice); //if mutate overwrite it
                     }
