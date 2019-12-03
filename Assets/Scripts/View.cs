@@ -12,6 +12,7 @@ class View
     RenderTexture _temp;
     bool _zoomStatus;
     Material _material;
+    RectTransform _canvasInfo;
 
     public View(int childCount, Material material)
     {
@@ -22,6 +23,7 @@ class View
         _zoomStatus = false;
         _material = material;
         _rawImages = GameObject.Find("Canvas").GetComponentsInChildren<RawImage>();
+        _canvasInfo = GameObject.Find("CanvasInfo").GetComponent<RectTransform>();
         _lights = new GameObject[_childCount];
 
         for (int i = 0; i < _childCount; i++)
@@ -58,6 +60,8 @@ class View
         for (int i = 0; i < _childCount; i++)
         {
             Text textCaption = GameObject.Find("TextCaption" + i.ToString()).GetComponent<Text>();
+
+
             textCaption.text = "Axiom : " + ruleSets[i]._axiom + "\n";
             string ruleNames = "FGH";
 
@@ -142,21 +146,36 @@ class View
         _temp = objectCam.gameObject.GetComponent<Camera>().targetTexture;
         _activeCam = objectCam;
         objectCam.gameObject.GetComponent<Camera>().targetTexture = null;
+
+
+        _canvasInfo.SetParent(objectCam.transform, true);
+        _canvasInfo.gameObject.SetActive(true);
+
+        Text textInfo = GameObject.Find("TextObjectInfo").GetComponent<Text>();
+        Text textCaption = GameObject.Find("TextCaption" + rawSelectionNum).GetComponent<Text>();
+        textInfo.text = textCaption.text;
+
     }
 
-    public void OnClickZoomOut()
+    public void OnClickRightClick()
     {
         if (_zoomStatus)
         {
-            _main.gameObject.SetActive(true);
-            _activeCam.gameObject.GetComponent<Camera>().targetTexture = _temp;
-            _zoomStatus = false;
+            //zoom out if zoomed in
+            OnClickZoomOut();
         }
         else
         {
-            Debug.Log("Right Click zooms out only when zoomed in");
-
+            //clear inputs if on main screen
+            inputSelection.text = "";
         }
+    }
+    public void OnClickZoomOut()
+    {
+        _main.gameObject.SetActive(true);
+        _activeCam.gameObject.GetComponent<Camera>().targetTexture = _temp;
+        _zoomStatus = false;
+        _canvasInfo.gameObject.SetActive(false);
     }
 }
 

@@ -39,7 +39,7 @@ public class Controller : MonoBehaviour {
     public void Update()
     {
         if (Input.GetMouseButtonDown(1))
-            view.OnClickZoomOut();
+            view.OnClickRightClick();
     }
 }
 
@@ -52,8 +52,6 @@ public class Controller : MonoBehaviour {
 //get rid of the genes/ char[][]
 //random seeds
 //can i replace xpt1 and ypt1 with one variable?
-
-//allow different amounts of rules
 
 
 //sort out how the genome allowed bases, the rule translation etc interlinked
