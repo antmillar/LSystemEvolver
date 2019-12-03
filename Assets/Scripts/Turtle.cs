@@ -273,14 +273,49 @@ class Turtle
 	        5, 7, 6,
             0, 6, 7, //face bottom
 	        0, 1, 6
-        }; //vertex ordering, must be clockwise
+        };
+
+        //Vector3[] vertexNormals =
+        //{-lineVector, -lineVector, -lineVector,
+        //-lineVector, -lineVector, -lineVector,
+        //_orientation, _orientation, _orientation,
+        //_orientation, _orientation, _orientation,
+        //lineNormal,lineNormal,lineNormal,
+        //lineNormal,lineNormal,lineNormal,
+        //-lineNormal,-lineNormal,-lineNormal,
+        //-lineNormal,-lineNormal,-lineNormal,
+        //lineVector,lineVector,lineVector,
+        //lineVector,lineVector,lineVector,
+        //-_orientation,-_orientation,-_orientation,
+        //-_orientation,-_orientation,-_orientation,
+        //};
+
+
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;
         //mesh.SetIndices(indices, MeshTopology.Lines, 0); //can't use different mesh topologies with combine mesh..
         mesh.triangles = indices;
-        mesh.RecalculateNormals();
-        _lineMeshes.Add(mesh);
+        //mesh.normals = vertexNormals;
+
+        Mesh noSharedVertexMesh = new Mesh();
+
+        //Process the triangles
+        Vector3[] oldVerts = mesh.vertices;
+        int[] triangles = mesh.triangles;
+        Vector3[] verticesNew = new Vector3[triangles.Length];
+        for (int i = 0; i < triangles.Length; i++)
+        {
+            verticesNew[i] = oldVerts[triangles[i]];
+            triangles[i] = i;
+        }
+        noSharedVertexMesh.vertices = verticesNew;
+        noSharedVertexMesh.triangles = triangles;
+        noSharedVertexMesh.RecalculateBounds();
+        noSharedVertexMesh.RecalculateNormals();
+
+
+        _lineMeshes.Add(noSharedVertexMesh);
     }
 
     //deprecated : fraws lines using line renderer

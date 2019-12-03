@@ -27,7 +27,7 @@ public class ObjectRotate : MonoBehaviour
             y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
             y = ClampAngle(y, yMinLimit, yMaxLimit);
             Quaternion rotation = Quaternion.Euler(y, x, 0);
-            transform.rotation = rotation;
+            this.transform.rotation = rotation;
         }
     }
 

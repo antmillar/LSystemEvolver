@@ -81,6 +81,7 @@ public class Model
         turtle.CreateMesh();
 
         Mesh mesh = turtle._finalMesh;
+        mesh.RecalculateNormals();
 
         return mesh;
     }

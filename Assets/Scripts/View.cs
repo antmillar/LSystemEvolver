@@ -127,6 +127,7 @@ class View
     {
         GameObject obj = GameObject.Find("obj" + idx);
         obj.AddComponent<ObjectRotate>();
+     //   obj.GetComponent<ObjectRotate>().enabled = false;
     }
 
     public void OnClickImage(string rawSelectionNum)
@@ -155,6 +156,9 @@ class View
         Text textCaption = GameObject.Find("TextCaption" + rawSelectionNum).GetComponent<Text>();
         textInfo.text = textCaption.text.ToUpper();
 
+
+       // ObjectRotate objectScript = GameObject.Find("obj" + rawSelectionNum).GetComponent<ObjectRotate>();
+       // objectScript.gameObject.SetActive(true);
     }
 
     public void OnClickRightClick()
