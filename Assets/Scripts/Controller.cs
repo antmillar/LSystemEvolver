@@ -33,6 +33,7 @@ public class Controller : MonoBehaviour {
         model.NextGeneration(inputSelection);
         view.MeshesToMeshFilters(model.meshes);
         view.UpdateGuiText(model._rulesets, model.geneticAlgoRules.Population._generation);
+        Debug.Log(model.geneticAlgoRules.Population._generation);
     }
 
     public void Update()

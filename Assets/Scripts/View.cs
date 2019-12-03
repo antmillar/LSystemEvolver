@@ -4,6 +4,8 @@ using System.Linq;
 class View
 {
     MeshFilter[] _meshFilters;
+    RawImage[] _rawImages;
+    GameObject[] _lights;
     int _childCount;
     InputField inputSelection;
     Camera _main, _activeCam;
@@ -19,11 +21,14 @@ class View
         _main = GameObject.Find("Main Camera").GetComponent<Camera>();
         _zoomStatus = false;
         _material = material;
+        _rawImages = GameObject.Find("Canvas").GetComponentsInChildren<RawImage>();
+        _lights = new GameObject[_childCount];
 
         for (int i = 0; i < _childCount; i++)
         {
             AddGuiItem(i);
-            AddLights(i);
+            AddLight(i);
+            AddRotationScript(i);
         }
     }
 
@@ -34,12 +39,17 @@ class View
             _meshFilters[i].mesh = meshes[i];
             Vector3 bounds = meshes[i].bounds.size;
             float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]); //leaving out the z axis for the moment
-            Debug.Log(i + " " + maxBound);
 
-            if(maxBound != 0)
-                _meshFilters[i].transform.localScale = (1/maxBound) * _meshFilters[i].transform.localScale;
+            _meshFilters[i].transform.localPosition = GameObject.Find("cam" + i.ToString()).GetComponent<Camera>().transform.localPosition + new Vector3(0, 0, 1);
+            //_meshFilters[i].transform.localPosition = _meshFilters[i].transform.parent.transform.localPosition;
+            //GameObject.Find("obj" + i.ToString()).GetComponent<Transform>();
 
-            //the bounds are changing everytime.
+            if (maxBound != 0)
+            { _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one; }
+
+            _lights[i].GetComponent<Light>().intensity = 3 * maxBound;
+
+            _lights[i].transform.position = _meshFilters[i].transform.position + new Vector3(-0.5f, -0.5f, -0.5f) * maxBound;
         }
     }
 
@@ -65,12 +75,11 @@ class View
     //adds the text captions and buttons to raw images
     public void AddGuiItem(int idx)
     {
-        RawImage[] rawImages = GameObject.Find("Canvas").GetComponentsInChildren<RawImage>();
         //Add button to each image
-        rawImages[idx].gameObject.AddComponent<Button>();
-        string imageName = rawImages[idx].gameObject.name;
+        _rawImages[idx].gameObject.AddComponent<Button>();
+        string imageName = _rawImages[idx].gameObject.name;
         string imageNum = imageName.Substring(3).ToString();
-        rawImages[idx].gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickImage(imageNum));
+        _rawImages[idx].gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickImage(imageNum));
         //Add game objects to hold text captions
         GameObject textObject = new GameObject();
         textObject.transform.SetParent(GameObject.Find("Canvas").GetComponent<Canvas>().transform);
@@ -84,7 +93,7 @@ class View
         textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
         textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 40f);
         textCaption.rectTransform.localScale = new Vector3(1, 1, 1);
-        textCaption.rectTransform.localPosition = rawImages[idx].rectTransform.localPosition + new Vector3(0, -90, 0);
+        textCaption.rectTransform.localPosition = _rawImages[idx].rectTransform.localPosition + new Vector3(0, -90, 0);
 
         textCaption.gameObject.AddComponent<Button>();
         textCaption.gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickFocus(imageNum));
@@ -97,17 +106,23 @@ class View
     }
 
     //adds a pointlight for each object
-    public void AddLights(int idx)
+    public void AddLight(int idx)
     {
+        
         GameObject obj = GameObject.Find("obj" + idx);
         GameObject lightGameObject = new GameObject("light" + idx);
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
         light.intensity = 3;
-        Debug.Log(obj.transform.localScale);
+        lightGameObject.transform.position += new Vector3(-0.5f, -0.5f, -0.25f); //slight offset for the lighting
         lightGameObject.transform.SetParent(obj.GetComponent<RectTransform>(), false);
+        _lights[idx] = lightGameObject;
+    }
 
-
+    public void AddRotationScript(int idx)
+    {
+        GameObject obj = GameObject.Find("obj" + idx);
+        obj.AddComponent<ObjectRotate>();
     }
 
     public void OnClickImage(string rawSelectionNum)
