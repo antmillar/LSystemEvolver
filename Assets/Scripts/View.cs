@@ -45,13 +45,11 @@ class View
             _meshFilters[i].transform.localPosition = GameObject.Find("cam" + i.ToString()).GetComponent<Camera>().transform.localPosition + new Vector3(0, 0, 1);
             //_meshFilters[i].transform.localPosition = _meshFilters[i].transform.parent.transform.localPosition;
             //GameObject.Find("obj" + i.ToString()).GetComponent<Transform>();
-
+            Debug.Log("max bound " + maxBound);
             if (maxBound != 0)
-            { _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one; }
-
-            _lights[i].GetComponent<Light>().intensity = 3 * maxBound;
-
-            _lights[i].transform.position = _meshFilters[i].transform.position + new Vector3(-0.5f, -0.5f, -0.5f) * maxBound;
+            { _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
+              _lights[i].GetComponent<Light>().intensity = 1.5f / maxBound;
+            }
         }
     }
 
@@ -63,7 +61,9 @@ class View
 
 
             textCaption.text = "Axiom : " + ruleSets[i]._axiom + "\n";
-            string ruleNames = "FGH";
+
+            var keyArray = ruleSets[i]._rules.Keys.ToArray();
+            string ruleNames = string.Join("", keyArray);
 
             for (int j = 0; j < ruleSets[i]._ruleCount; j++)
             {
@@ -113,13 +113,13 @@ class View
     public void AddLight(int idx)
     {
         
-        GameObject obj = GameObject.Find("obj" + idx);
+        GameObject cam = GameObject.Find("cam" + idx);
         GameObject lightGameObject = new GameObject("light" + idx);
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
-        light.intensity = 3;
-        lightGameObject.transform.position += new Vector3(-0.5f, -0.5f, -0.25f); //slight offset for the lighting
-        lightGameObject.transform.SetParent(obj.GetComponent<RectTransform>(), false);
+        light.intensity = 2;
+ 
+        lightGameObject.transform.SetParent(cam.GetComponent<Transform>(), false);
         _lights[idx] = lightGameObject;
     }
 
@@ -153,7 +153,7 @@ class View
 
         Text textInfo = GameObject.Find("TextObjectInfo").GetComponent<Text>();
         Text textCaption = GameObject.Find("TextCaption" + rawSelectionNum).GetComponent<Text>();
-        textInfo.text = textCaption.text;
+        textInfo.text = textCaption.text.ToUpper();
 
     }
 

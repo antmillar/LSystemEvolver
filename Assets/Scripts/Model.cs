@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-
+using System.Linq;
 
 public class Model
 {
@@ -50,12 +48,13 @@ public class Model
     //encodes the initial sample l systems to genomes
     public void EncodeSamples(int idx)
     {
+        //the ordering here matters due to sample rules
+        var keyArray = _rulesets[idx]._rules.Keys.ToArray();
+        string ruleNames = string.Join("", keyArray);
 
-        //encoding the Rules
-        string ruleNames = "FGH";
-        _sampleRules[idx] = new string[_rulesets[idx]._ruleCount];
+        _sampleRules[idx] = new string[keyArray.Length];
 
-        for (int i = 0; i < _rulesets[idx]._ruleCount; i++)
+        for (int i = 0; i < keyArray.Length; i++)
         {
             string rule = _rulesets[idx]._rules[ruleNames[i].ToString()];
             _sampleRules[idx][i] = _encode.Encode(rule);
@@ -109,16 +108,18 @@ public class Model
     //converts from genomes to _rulesets
     public void DecodeGenomes()
     {
+
         for (int i = 0; i < _childCount; i++)
         {
             var temp = geneticAlgoAxioms.Population._genomes[i].genome[0];
             string evolvedAxiom = geneticAlgoAxioms.Encoder.Decode(temp);
             Debug.Log(evolvedAxiom);
-
-            string ruleNames = "FGH";
             RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, "FGH", 90f);
             rsTemp.AddTerminal("G", "F");
             rsTemp.AddTerminal("H", "F");
+            string ruleNames = "FGH";
+            //issue here because the rules aren't attached to their rules the order matters when passing/reversing
+            //so all systems currently need to have fgh defined and in order
 
             for (int j = 0; j < geneticAlgoRules.Population._genomes[i].genome.Length; j++)
             {
@@ -129,7 +130,6 @@ public class Model
 
             rsTemp.Validate();
             _rulesets[i] = rsTemp;
-
         }
     }
 
@@ -137,7 +137,7 @@ public class Model
     public void NextGeneration(string inputSelection)
     {
         geneticAlgoRules.NextGeneration(inputSelection);
-        //geneticAlgoAxioms.NextGeneration(inputSelection);
+        geneticAlgoAxioms.NextGeneration(inputSelection);
         DecodeGenomes();
 
         for (int i = 0; i < _childCount; i++)

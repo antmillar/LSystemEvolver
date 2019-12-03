@@ -9,7 +9,7 @@ class Turtle
     Vector3 _pos, _heading, _orientation;
     Stack<Vector3> _pointStack;
     Stack<Vector3[]> _transformStack;
-    float _lineAngle, _lineWidth, _widthRatio, _stepSize, _lineWidthRatio;
+    float _lineAngle, _lineWidth, _widthRatio, _stepLength, _lineWidthRatio;
 
     List<Mesh> _lineMeshes;
 
@@ -23,7 +23,7 @@ class Turtle
         _pointStack = new Stack<Vector3>();
         _transformStack = new Stack<Vector3[]>();
         _lineAngle = defaultAngle;
-        _stepSize = 0.05f;
+        _stepLength = 0.05f;
         _lineMeshes = new List<Mesh>();
         _widthRatio = 0.25f;
         _lineWidthRatio = 0.2f;
@@ -74,7 +74,7 @@ class Turtle
 
                 case '"': //rescale step size
 
-                    _stepSize *= 0.5f;
+                    _stepLength *= 0.5f;
                     break;
 
                 case '!': //rescale line width
@@ -111,19 +111,23 @@ class Turtle
         if (draw)
         {
             AddPoint();
-            _pos += _heading * _stepSize;
+            _pos += _heading * _stepLength;
             AddPoint();
-            Draw3DStripMesh();
-            //DrawLine();
+            DrawBoxMesh();
         }
         else
-            _pos += _heading * _stepSize;
+            _pos += _heading * _stepLength;
     }
 
     private void AddPoint()
     {
-
         _pointStack.Push(_pos);
+    }
+
+    private void Turn(float angle)
+    {
+        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        _heading = rotation * _heading;
     }
 
     private void Pitch(float angle)
@@ -134,38 +138,9 @@ class Turtle
         _orientation = Vector3.Cross(rotationAxis, _heading);
     }
 
-    private void Turn(float angle)
-    {
-        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        _heading = rotation * _heading;
-    }
-
-    //deprecated : draws a line connecting the two points in the point stack
-    private void DrawLine()
-    {
-
-        GameObject myLine = new GameObject();
-        Vector3 start = _pointStack.Pop();
-        Vector3 end = _pointStack.Pop();
-        Color color = new Color(1, 1, 1);
-
-        myLine.transform.position = start;
-        myLine.AddComponent<LineRenderer>();
-
-        LineRenderer lineRenderer = myLine.GetComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
-        lineRenderer.startWidth = _lineWidth;
-        lineRenderer.SetPosition(0, start);
-        lineRenderer.SetPosition(1, end);
-        //GameObject.Destroy(myLine, duration);
-    }
-
     //draws a line as a mesh
     private void DrawLineMesh()
     {
-
         Vector3 start = _pointStack.Pop();
         Vector3 end = _pointStack.Pop();
 
@@ -174,9 +149,8 @@ class Turtle
 
         //draw a rectangle around the start and end points to represent a line
         Vector3 startL = start - _lineWidthRatio * lineNormal;
-        Vector3 endL = startL + lineVector;
-
         Vector3 startR = start + _lineWidthRatio * lineNormal;
+        Vector3 endL = startL + lineVector;
         Vector3 endR = startR + lineVector;
 
         Vector3[] vertices = new Vector3[8];
@@ -206,6 +180,8 @@ class Turtle
 
         //draw a rectangle around the start and end points to represent a line
         Vector3 startL = start - _widthRatio * lineNormal;
+
+
         Vector3 endL = startL + lineVector;
 
         Vector3 startR = start + _widthRatio * lineNormal;
@@ -245,39 +221,43 @@ class Turtle
 
 
     //draws a two side strip
-    private void Draw3DStripMesh()
+    private void DrawBoxMesh()
     {
+        float widthRatio = _stepLength / 2;
+
         Vector3 start = _pointStack.Pop();
         Vector3 end = _pointStack.Pop();
 
         Vector3 lineVector = end - start; //vector pointing from start to end
-        Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation);
+        Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation).normalized;
+        Vector3 widthVector = lineNormal * widthRatio;
+        Vector3 heightVector = _orientation.normalized * widthRatio;
 
         //draw a rectangle around the start and end points to represent a line
-        Vector3 startL = start - _widthRatio * lineNormal;
-        Vector3 endL = startL + lineVector;
+        Vector3 startL = start - widthVector/2;
+        Vector3 startR = start + widthVector/2;
+        Vector3 endL = end - widthVector/2;
+        Vector3 endR = end + widthVector/2;
 
-        Vector3 startR = start + _widthRatio * lineNormal;
-        Vector3 endR = startR + lineVector;
+        Vector3 startLD = startL - heightVector/2;
+        Vector3 startRD = startR - heightVector/2;
+        Vector3 endLD = endL - heightVector/2;
+        Vector3 endRD = endR - heightVector/2;
 
-        Vector3 startLD = startL - _widthRatio * _orientation * lineNormal.magnitude;
-        Vector3 endLD = endL - _widthRatio  * _orientation * lineNormal.magnitude;
-        Vector3 startRD = startR - _widthRatio  * _orientation * lineNormal.magnitude;
-        Vector3 endRD = endR - _widthRatio  * _orientation * lineNormal.magnitude;
-
-        Vector3[] vertices = new Vector3[8];
+        Vector3[] vertices = {
 
         //front vertices
-        vertices[0] = startL;
-        vertices[1] = startR;
-        vertices[2] = endR;
-        vertices[3] = endL;
+        startL,
+        startR,
+        endR,
+        endL,
 
         //back vertices
-        vertices[4] = endLD;
-        vertices[5] = endRD;
-        vertices[6] = startRD;
-        vertices[7] = startLD;
+        endLD,
+        endRD,
+        startRD,
+        startLD,
+        };
 
 
         int[] indices = {
@@ -303,83 +283,26 @@ class Turtle
         _lineMeshes.Add(mesh);
     }
 
-    private void DrawBoxMesh()
+    //deprecated : fraws lines using line renderer
+    private void DrawLine()
     {
 
+        GameObject myLine = new GameObject();
         Vector3 start = _pointStack.Pop();
         Vector3 end = _pointStack.Pop();
+        Color color = new Color(1, 1, 1);
 
-        Vector3 lineVector = end - start; //vector pointing from start to end
-        Vector3 lineNormal = Vector3.Cross(lineVector, Vector3.forward);
+        myLine.transform.position = start;
+        myLine.AddComponent<LineRenderer>();
 
-        //draw a rectangle around the start and end points to represent a line
-        Vector3 startL = start - lineNormal/2;
-        Vector3 endL = startL + lineVector ;
-
-        Vector3 startR = start + lineNormal/2;
-        Vector3 endR = startR + lineVector;
-
-        Vector3 startLT = start - lineNormal/2 + _stepSize * Vector3.forward;
-        Vector3 endLT = startL + lineVector + _stepSize * Vector3.forward;
-
-        Vector3 startRT = start + lineNormal/2 + _stepSize * Vector3.forward;
-        Vector3 endRT = startR + lineVector + _stepSize * Vector3.forward;
-        Vector3[] vertices = new Vector3[8];
-
-        vertices[0] = startL;
-        vertices[1] = startR;
-        vertices[2] = endL;
-        vertices[3] = endR;
-        vertices[4] = endRT;
-        vertices[5] = endLT;
-        vertices[6] = startRT;
-        vertices[7] = startLT;
-        //int[] indices = new int[6] { 0, 2, 3, 3, 1, 0 }; //vertex ordering, must be clockwise
-
-
-
-        int[] triangles = {
-        0, 2, 1, //face front
-	    1, 2, 3,
-        2, 5, 3, //face top
-	    3, 5, 4,
-        1, 3, 6, //face right
-	    6, 3, 4,
-        7, 6, 5, //face left
-	    6, 4, 5,
-        0, 7, 2, //face back
-	    7, 5, 2,
-        1, 6, 0, //face bottom
-	    0, 6, 7,
-     //   //backfaces
-     //   0, 1, 2, 
-	    //0, 2, 3,
-     //   2, 4, 3, 
-	    //2, 5, 4,
-     //   1, 5, 2, 
-	    //1, 6, 5,
-     //   0, 4, 7, 
-	    //0, 3, 4,
-     //   5, 7, 4, 
-	    //5, 6, 7,
-     //   0, 7, 6, 
-	    //0, 6, 1,
-
-        };
-
-
-
-        
-
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        //mesh.SetIndices(indices, MeshTopology.Lines, 0); //can't use different mesh topologies with combine mesh..
-        mesh.triangles = triangles;
-        _lineMeshes.Add(mesh);
-
-
-
-
+        LineRenderer lineRenderer = myLine.GetComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+        lineRenderer.startColor = color;
+        lineRenderer.endColor = color;
+        lineRenderer.startWidth = _lineWidth;
+        lineRenderer.SetPosition(0, start);
+        lineRenderer.SetPosition(1, end);
+        //GameObject.Destroy(myLine, duration);
     }
 
     //combines the line meshes into a final mesh
