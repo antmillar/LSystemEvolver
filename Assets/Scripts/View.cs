@@ -48,7 +48,7 @@ class View
             Debug.Log("max bound " + maxBound);
             if (maxBound != 0)
             { _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
-              _lights[i].GetComponent<Light>().intensity = 1.5f / maxBound;
+              //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
             }
         }
     }
@@ -120,6 +120,8 @@ class View
         light.intensity = 2;
  
         lightGameObject.transform.SetParent(cam.GetComponent<Transform>(), false);
+        light.transform.localPosition = new Vector3(-0.5f, 0, 0.5f);
+
         _lights[idx] = lightGameObject;
     }
 
