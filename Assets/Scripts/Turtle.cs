@@ -170,57 +170,6 @@ class Turtle
     }
 
     //draws a two side strip
-    private void DrawStripMesh()
-    {
-        Vector3 start = _pointStack.Pop();
-        Vector3 end = _pointStack.Pop();
-
-        Vector3 lineVector = end - start; //vector pointing from start to end
-        Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation);
-
-        //draw a rectangle around the start and end points to represent a line
-        Vector3 startL = start - _widthRatio * lineNormal;
-
-
-        Vector3 endL = startL + lineVector;
-
-        Vector3 startR = start + _widthRatio * lineNormal;
-        Vector3 endR = startR + lineVector;
-
-        Vector3[] vertices = new Vector3[8];
-
-        //front vertices
-        vertices[0] = startL;
-        vertices[1] = startR;
-        vertices[2] = endL;
-        vertices[3] = endR;
-
-        //back vertices
-        vertices[4] = startL;
-        vertices[5] = startR;
-        vertices[6] = endL;
-        vertices[7] = endR;
-
-        //backfaces
-        int[] indices = 
-        { //frontfaces
-          0, 3, 2,
-          1, 3, 0,  
-          //backfaces
-          7, 4, 6,
-          7, 5, 4
-        }; //vertex ordering, must be clockwise
-
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        //mesh.SetIndices(indices, MeshTopology.Lines, 0); //can't use different mesh topologies with combine mesh..
-        mesh.triangles = indices;
-        mesh.RecalculateNormals();
-        _lineMeshes.Add(mesh);
-    }
-
-
-    //draws a two side strip
     private void DrawBoxMesh()
     {
         float widthRatio = _stepLength / 2;
@@ -259,7 +208,7 @@ class Turtle
         startLD,
         };
 
-        int[] indices = {
+        int[] triangles = {
             0, 2, 1, //face front
 	        0, 3, 2,
             2, 3, 4, //face top
@@ -274,18 +223,38 @@ class Turtle
 	        0, 1, 6
         };
 
-        int[] triangles = indices;
+        Vector2[] uvMap =
+        {
+        //front vertices
+        new Vector2(0f,0f),
+        new Vector2(1f,0f),
+        new Vector2(1f,1f),
+        new Vector2(0f,1f),
+
+        //back vertices
+        new Vector2(1f,0f),
+        new Vector2(0f,0f),
+        new Vector2(0f,1f),
+        new Vector2(1f,1f),
+
+        };
+
+        //creating a new vertex for every face (for flat shading later) and map UVs
         Vector3[] verticesNew = new Vector3[triangles.Length];
+        Vector2[] uvs = new Vector2[triangles.Length];
+
         for (int i = 0; i < triangles.Length; i++)
         {
             verticesNew[i] = vertices[triangles[i]];
+            uvs[i] = uvMap[triangles[i]];
             triangles[i] = i;
         }
 
         Mesh mesh = new Mesh();
 
         mesh.vertices = verticesNew;
-        mesh.triangles = indices;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();

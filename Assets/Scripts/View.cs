@@ -125,7 +125,7 @@ class View
         GameObject lightGameObject = new GameObject("light" + idx);
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
-        light.intensity = 3;
+        light.intensity = 2;
  
         lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), false);
         light.transform.localPosition = new Vector3(-0.5f, 0, 0.5f);
