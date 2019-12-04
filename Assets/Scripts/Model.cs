@@ -35,7 +35,7 @@ public class Model
         for (int i = 0; i < _childCount; i++)
         {
             //get the rule sets for samples from DB
-            RuleSet tempRS = new RuleSet(systemsJSON[(i % 6).ToString()]);
+            RuleSet tempRS = new RuleSet(systemsJSON[(i % systemsJSON.Count).ToString()]);
             _rulesets[i] = tempRS;
             meshes[i] = MeshFromRuleset(_rulesets[i]);
             EncodeSamples(i);

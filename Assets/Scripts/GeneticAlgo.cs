@@ -295,6 +295,7 @@ public class Selection
 public class CrossOver
 {
     public string _crossoverType;
+    private int _maxGeneGrowth = 10; 
 
     public CrossOver(string crossoverType)
     {
@@ -328,21 +329,40 @@ public class CrossOver
         int geneChoice1 = UnityEngine.Random.Range(0, p1.genome.Length);
         int geneChoice2 = UnityEngine.Random.Range(0, p2.genome.Length);
 
-        System.Random random = new System.Random(seed);
-        int xPt1 = random.Next(0, p1.genome[geneChoice1].Length); //1st crossover pt on first genome
-        int yPt1 = random.Next(0, p2.genome[geneChoice2].Length); //1st crossover pt on second genome
+        //get randomly selected genes from each genome
+        var p1Gene = p1.genome[geneChoice1];
+        var p2Gene = p2.genome[geneChoice2];
 
+        System.Random random = new System.Random(seed);
+        int xPt1 = random.Next(0, p1Gene.Length); //1st crossover pt on first genome
+        int yPt1 = random.Next(0, p2Gene.Length); //1st crossover pt on second genome
+
+        //try to restrict the max dist between xPt1 and yPt1, restricts the gene growth so the fractals don't blow out!
+        //essentially a two sided clamp
+        //also restricts the values to  be within the length of the genome
+        int growthCap = Math.Max(_maxGeneGrowth, Math.Abs(yPt1 - xPt1));
+
+        if (xPt1 < yPt1)
+        {
+            yPt1 = random.Next(0, Math.Min(xPt1 + growthCap, p2Gene.Length));
+        }
+        else
+        {
+            yPt1 = random.Next(Math.Max(Math.Min(xPt1 - growthCap, p2Gene.Length),0), p2Gene.Length);
+        }
+                
         //if genomes all have the same length then cross at same point to maintain this.
         if (!variableGenomeLength)
         { 
             yPt1 = xPt1;
         } 
         //if genomes can be different lengths, need to limit the crossing point to the shortest genome
-        else 
-        { 
-            yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1;
-        }
+        //else 
+        //{ 
+        //    yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1;
+        //}
 
+        Debug.Log("first length " + p1Gene.Length + " " + p2Gene.Length);
         Debug.Log("first cross pt " + xPt1.ToString() + " " + yPt1.ToString());
         string crossedString1, crossedString2;
 
@@ -351,11 +371,11 @@ public class CrossOver
             //cuts the genotype at one point and swaps genes
             case "OnePt":
 
-                crossedString1 = p1.genome[geneChoice1].Substring(0, xPt1) + p2.genome[geneChoice2].Substring(yPt1);
+                crossedString1 = p1Gene.Substring(0, xPt1) + p2Gene.Substring(yPt1);
 
                 p1.setGene(geneChoice1, crossedString1);
 
-                crossedString2 = p2.genome[geneChoice2].Substring(0, yPt1) + p1.genome[geneChoice1].Substring(xPt1);
+                crossedString2 = p2Gene.Substring(0, yPt1) + p1Gene.Substring(xPt1);
 
                 p2.setGene(geneChoice2, crossedString2);
 
@@ -376,8 +396,8 @@ public class CrossOver
                 int ymin = Math.Min(yPt1, yPt2);
                 int ymax = Math.Max(yPt1, yPt2);
 
-                crossedString1 = p1.genome[geneChoice1].Substring(0, xmin) + p2.genome[geneChoice2].Substring(ymin, ymax - ymin) + p1.genome[geneChoice1].Substring(xmax);
-                crossedString2 = p2.genome[geneChoice2].Substring(0, ymin) + p1.genome[geneChoice1].Substring(xmin, xmax - xmin) + p2.genome[geneChoice2].Substring(ymax);
+                crossedString1 = p1Gene.Substring(0, xmin) + p2Gene.Substring(ymin, ymax - ymin) + p1Gene.Substring(xmax);
+                crossedString2 = p2Gene.Substring(0, ymin) + p1Gene.Substring(xmin, xmax - xmin) + p2Gene.Substring(ymax);
 
                 p1.setGene(geneChoice1, crossedString1);
                 p2.setGene(geneChoice2, crossedString2);
@@ -388,8 +408,8 @@ public class CrossOver
             case "Uniform":
 
                 float swapRate = 0.1f;
-                char[] chars1 = p1.genome[geneChoice1].ToCharArray();
-                char[] chars2 = p2.genome[geneChoice2].ToCharArray();
+                char[] chars1 = p1Gene.ToCharArray();
+                char[] chars2 = p2Gene.ToCharArray();
 
                 int minLength = Math.Min(chars1.Length, chars2.Length); //only swaps up till the end of shortest genome
 

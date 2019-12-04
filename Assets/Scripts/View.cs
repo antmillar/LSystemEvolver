@@ -125,7 +125,7 @@ class View
         GameObject lightGameObject = new GameObject("light" + idx);
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
-        light.intensity = 2;
+        light.intensity = 15;
  
         lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), false);
         light.transform.localPosition = new Vector3(-0.5f, 0, 0.5f);
@@ -148,7 +148,7 @@ class View
         {
             _meshFilters[i].mesh = meshes[i];
             Vector3 bounds = meshes[i].bounds.size;
-            float maxBound = Mathf.Max(bounds[0], bounds[1]); //didn't include the z axis, as this is the plane of the view
+            float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]/2); //weight the z axis down a bit, as plane of view is x y
 
             _meshFilters[i].transform.localPosition = _cams[i].transform.localPosition + new Vector3(0, 0, 1);
 
