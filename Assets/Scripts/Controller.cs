@@ -15,7 +15,7 @@ public class Controller : MonoBehaviour {
         model = new Model(childCount, _mutationRate);
         
         view.MeshesToMeshFilters(model.meshes);
-        view.UpdateGuiText(model._rulesets, model.geneticAlgoRules.Population._generation);
+        view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
     }
 
     public void OnClickEvolve()
@@ -23,17 +23,15 @@ public class Controller : MonoBehaviour {
         NextGeneration();
     }
 
-
-
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration()
     {
-        string inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>().text; //should rewrite this in view with parsing
+        string inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>().text;
 
         model.NextGeneration(inputSelection);
         view.MeshesToMeshFilters(model.meshes);
-        view.UpdateGuiText(model._rulesets, model.geneticAlgoRules.Population._generation);
-        Debug.Log(model.geneticAlgoRules.Population._generation);
+        view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
+        Debug.Log(model.gaRules.Population._generation);
     }
 
     public void Update()

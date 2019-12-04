@@ -5,7 +5,7 @@ public class Model
 {
     public RuleSet[] _rulesets;
     public Mesh[] meshes;
-    public GeneticAlgo geneticAlgoRules, geneticAlgoAxioms;
+    public GeneticAlgo gaRules, gaAxioms;
     int _childCount;
     Encoder _encode, _encodeAxiom;
     string[][] _sampleRules, _sampleAxioms;
@@ -41,8 +41,8 @@ public class Model
             EncodeSamples(i);
         }
 
-        geneticAlgoRules = CreateGA(_sampleRules);
-        geneticAlgoAxioms = CreateGA(_sampleAxioms);
+        gaRules = CreateGA(_sampleRules);
+        gaAxioms = CreateGA(_sampleAxioms);
     }
 
     //encodes the initial sample l systems to genomes
@@ -112,8 +112,8 @@ public class Model
 
         for (int i = 0; i < _childCount; i++)
         {
-            var temp = geneticAlgoAxioms.Population._genomes[i].genome[0];
-            string evolvedAxiom = geneticAlgoAxioms.Encoder.Decode(temp);
+            var temp = gaAxioms.Population._genomes[i].genome[0];
+            string evolvedAxiom = gaAxioms.Encoder.Decode(temp);
             Debug.Log(evolvedAxiom);
             RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, "FGH", 90f);
             rsTemp.AddTerminal("G", "F");
@@ -122,10 +122,10 @@ public class Model
             //issue here because the rules aren't attached to their rules the order matters when passing/reversing
             //so all systems currently need to have fgh defined and in order
 
-            for (int j = 0; j < geneticAlgoRules.Population._genomes[i].genome.Length; j++)
+            for (int j = 0; j < gaRules.Population._genomes[i].genome.Length; j++)
             {
-                var tempGenome = geneticAlgoRules.Population._genomes[i].genome[j];
-                string specimen = geneticAlgoRules.Encoder.Decode(tempGenome);
+                var tempGenome = gaRules.Population._genomes[i].genome[j];
+                string specimen = gaRules.Encoder.Decode(tempGenome);
                 rsTemp.AddRule(ruleNames[j].ToString(), specimen);
             }
 
@@ -137,8 +137,9 @@ public class Model
     //runs the next generation of the algo and updates the meshes
     public void NextGeneration(string inputSelection)
     {
-        geneticAlgoRules.NextGeneration(inputSelection);
-        geneticAlgoAxioms.NextGeneration(inputSelection);
+        //separate GAs for the axiom and rules currently, to maintain separation
+        gaRules.NextGeneration(inputSelection);
+        gaAxioms.NextGeneration(inputSelection);
         DecodeGenomes();
 
         for (int i = 0; i < _childCount; i++)
@@ -146,12 +147,5 @@ public class Model
             int j = i;
             meshes[i] = MeshFromRuleset(_rulesets[j]);
         }
-
     }
-
-
-
-
-
-
 }
