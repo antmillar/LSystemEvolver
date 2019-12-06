@@ -146,7 +146,7 @@ public class RuleSet
     public void Validate(){
 
         string terminalKeys = _terminals.Keys.ToString();
-        string turtleString = "Ff-+|[]!£\"GH^&"; //current valid turtle symbols, should really pass this in elsewhere
+        string turtleString = "Ff-+|!£\"GHI^&$"; //current valid turtle symbols, should really pass this in elsewhere
         char[] turtleChars = turtleString.ToCharArray();
 
         foreach (char symbol in _alphabet){

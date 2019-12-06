@@ -39,12 +39,24 @@ class Turtle
 
             switch (c)
             {
-                case 'F': //move fwd and draw
-                    Move();
+                case 'F': //move fwd and draw shape 1
+                    Move("F");
+                    break;
+
+                case 'G': //move fwd and draw shape 1
+                    Move("G");
+                    break;
+
+                case 'H': //move fwd and draw shape 2
+                    Move("H");
+                    break;
+
+                case 'I': //move fwd and draw shape 3
+                    Move("I");
                     break;
 
                 case 'f': //move fwd only
-                    Move(false);
+                    Step();
                     break;
 
                 case '+': //turn left by angle
@@ -77,6 +89,11 @@ class Turtle
                     _stepLength *= 0.5f;
                     break;
 
+                case '$': //rescale step size
+
+                    _stepLength *= 2f;
+                    break;
+
                 case '!': //rescale line width
 
                     _widthRatio *= 0.75f;
@@ -102,22 +119,34 @@ class Turtle
                     throw new ArgumentException(c + " is not a valid argument");
             }
         }
-
-
     }
 
-    private void Move(bool draw = true)
+    private void Move(string s)
     {
-        if (draw)
+        AddPoint();
+        Step();
+        AddPoint();
+        if(s == "F" | s == "G")
         {
-            AddPoint();
-            _pos += _heading * _stepLength;
-            AddPoint();
-            DrawBoxMesh();
+            DrawBoxMesh(1.0f, 1.0f);
         }
-        else
-            _pos += _heading * _stepLength;
+        if(s == "H")
+        {
+            DrawBoxMesh(2.0f, 0.5f);
+        }
+        if(s == "I")
+        {
+            DrawBoxMesh(0.25f, 4.0f);
+        }
     }
+    
+
+    private void Step()
+    {
+        _pos += _heading * _stepLength;
+    }
+
+ 
 
     private void AddPoint()
     {
@@ -126,7 +155,7 @@ class Turtle
 
     private void Turn(float angle)
     {
-        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        var rotation = Quaternion.AngleAxis(angle, -_orientation);
         _heading = rotation * _heading;
     }
 
@@ -170,7 +199,7 @@ class Turtle
     }
 
     //draws a two side strip
-    private void DrawBoxMesh()
+    private void DrawBoxMesh(float widthScale, float heightScale)
     {
         float widthRatio = _stepLength / 2;
 
@@ -179,8 +208,8 @@ class Turtle
 
         Vector3 lineVector = end - start; //vector pointing from start to end
         Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation).normalized;
-        Vector3 widthVector = lineNormal * widthRatio;
-        Vector3 heightVector = _orientation.normalized * widthRatio;
+        Vector3 widthVector = lineNormal * widthRatio * widthScale;
+        Vector3 heightVector = _orientation.normalized * widthRatio * heightScale;
 
         //draw a rectangle around the start and end points to represent a line
         Vector3 startL = start - widthVector/2;

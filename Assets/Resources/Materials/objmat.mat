@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: objmat
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 47, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: _EMISSION _GLOSSYREFLECTIONS_OFF _MAPPING_LATITUDE_LONGITUDE_LAYOUT
     _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 1
@@ -41,7 +41,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 18a23bf094eb79f488e1794cc87535c5, type: 3}
+        m_Texture: {fileID: 2800000, guid: b94b96330f8399244be9293b9610b34e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -77,10 +77,10 @@ Material:
     - _EmissionEnabled: 0
     - _FlipbookMode: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0
+    - _Glossiness: 0.466
     - _GlossyReflections: 0
     - _LightingEnabled: 1
-    - _Metallic: 0
+    - _Metallic: 0.271
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -94,7 +94,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.5943396, g: 0.40567756, b: 0.19904771, a: 1}
+    - _Color: {r: 0.735849, g: 0.50980407, b: 0.2742079, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0, g: 0, b: 0, a: 1}

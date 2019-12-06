@@ -28,8 +28,8 @@ public class Model
         _sampleRules = new string[_childCount][];
         _sampleAxioms = new string[_childCount][];
 
-        _encode = new Encoder("Ff-+|!£\"GH^&");
-        _encodeAxiom = new Encoder("FGH");
+        _encode = new Encoder("Ff-+|!£\"GHI^&$");
+        _encodeAxiom = new Encoder("FGHI");
 
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < _childCount; i++)
@@ -114,11 +114,12 @@ public class Model
         {
             var temp = gaAxioms.Population._genomes[i].genome[0];
             string evolvedAxiom = gaAxioms.Encoder.Decode(temp);
-            Debug.Log(evolvedAxiom);
-            RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, "FGH", 90f);
-            rsTemp.AddTerminal("G", "F");
-            rsTemp.AddTerminal("H", "F");
-            string ruleNames = "FGH";
+            //Debug.Log(evolvedAxiom);
+
+            string ruleNames = "FGHI";
+            RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, ruleNames, 90f);
+            //rsTemp.AddTerminal("G", "F");
+            //rsTemp.AddTerminal("H", "F");
             //issue here because the rules aren't attached to their rules the order matters when passing/reversing
             //so all systems currently need to have fgh defined and in order
 

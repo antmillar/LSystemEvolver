@@ -362,8 +362,8 @@ public class CrossOver
         //    yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1;
         //}
 
-        Debug.Log("first length " + p1Gene.Length + " " + p2Gene.Length);
-        Debug.Log("first cross pt " + xPt1.ToString() + " " + yPt1.ToString());
+        //Debug.Log("first length " + p1Gene.Length + " " + p2Gene.Length);
+        //Debug.Log("first cross pt " + xPt1.ToString() + " " + yPt1.ToString());
         string crossedString1, crossedString2;
 
         switch (_crossoverType)
@@ -449,6 +449,7 @@ public class Mutation
         {
             System.Random seed = new System.Random(i);
             Mutate(p._genomes[i], seed);
+            //MutateGrow(p._genomes[i], seed);
         }
     }
 
@@ -501,6 +502,21 @@ public class Mutation
                 throw new NotImplementedException("Not yet implemented.");
         }
     }
+
+
+    //takes genome as input and mutates it
+    public void MutateGrow(Genome p1, System.Random seed)
+    {
+        System.Random r = new System.Random(seed.Next());
+        double test = r.NextDouble();
+        if (test < _mutationRate)
+        {
+            p1.AddGene();
+            Debug.Log("New gene spawned on genome!");
+            Debug.Log(p1.genome[p1.genome.Length - 1]);
+        }
+    }
+
 }
 
 public class GeneticAlgo

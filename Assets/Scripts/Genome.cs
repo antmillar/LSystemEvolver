@@ -6,10 +6,10 @@ using UnityEngine;
 //can have more than one array if there objects are more complex
 public class Genome {
 
-	//public char[][] genes;
 	public string[] genome;
 	private float mutateRate;
     public int baseTypeCount;
+    private int _defaultGeneLength = 10;
 
     public void setGene(int geneIndex, string value)
     {
@@ -43,18 +43,31 @@ public class Genome {
     {
         System.Random randomInt = new System.Random(randomSeed);
         for (int j = 0; j < genome.Length; j++)
-        { //generate a new random genome with genes a-z
-            char[] bases = new char[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                //issue here with timing and random being same
-                int randInt = randomInt.Next(97, 97 + baseTypeCount); //MODULEO!!!
-                bases[i] = (char)randInt;
-
-            }
-            genome[j] = new string(bases);
+        { 
+            genome[j] = GenerateRandomGene(randomInt);
         }
+    }
+
+    public string GenerateRandomGene(System.Random r)
+    {
+
+        char[] bases = new char[_defaultGeneLength];
+
+        for (int i = 0; i < _defaultGeneLength; i++)
+        {
+            int randInt = r.Next(97, 97 + baseTypeCount);
+            bases[i] = (char)randInt;
+        }
+        return new string(bases);
+    }
+
+    public void AddGene()
+    {
+        string[] newGenome = new string[genome.Length + 1];
+        System.Random randomInt = new System.Random();
+        newGenome[genome.Length] = GenerateRandomGene(randomInt);
+        genome.CopyTo(newGenome, genome.Length - 1);
+        genome = newGenome;
     }
 
 	public int Fitness(string targetString){

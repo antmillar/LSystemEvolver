@@ -5,7 +5,7 @@ class View
 {
     MeshFilter[] _meshFilters;
     RawImage[] _rawImages;
-    GameObject[] _lights, _objs;
+    GameObject[] _lights, _objs, _rObjs;
     Camera[] _cams;
     Text[] _captions;
     Material _material;
@@ -36,6 +36,7 @@ class View
         _lights = new GameObject[_childCount];
         _cams = new Camera[_childCount];
         _objs = new GameObject[_childCount];
+        _rObjs = new GameObject[_childCount];
         _captions = new Text[_childCount];
 
         PopulateGui();
@@ -48,6 +49,7 @@ class View
         for (int i = 0; i < _childCount; i++)
         {
             AddObject(i);
+
             AddCamera(i);
             AddImageButton(i);
             AddCaption(i);
@@ -60,10 +62,21 @@ class View
     //add object for each mesh
     public void AddObject(int idx)
     {
+        GameObject rotateObj = new GameObject("rObj" + idx);
         GameObject newObj = new GameObject("obj" + idx);
-        newObj.transform.position = new Vector3(250 * (idx + 1), 0, 1);
+        //newObj.transform.position = new Vector3(250 * (idx + 1), 0, 1);
+
+        rotateObj.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
+
+
+        rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 1) + new Vector3(0, 0, 1); ;
+
+        newObj.transform.parent = rotateObj.transform;
+
+        newObj.transform.localPosition = Vector3.zero;
         newObj.transform.eulerAngles = new Vector3(15, 30, 0);
-        newObj.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
+
+        _rObjs[idx] = rotateObj;
         _objs[idx] = newObj;
     }
 
@@ -76,6 +89,7 @@ class View
         newCam.orthographic = true;
         newCam.orthographicSize = 1;
         newCam.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
+
         _cams[idx] = newCam;
     }
 
@@ -125,18 +139,18 @@ class View
         GameObject lightGameObject = new GameObject("light" + idx);
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
-        light.intensity = 15;
+        light.intensity = 10;
  
         lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), false);
-        light.transform.localPosition = new Vector3(-0.5f, 0, 0.5f);
+        light.transform.localPosition = new Vector3(-0.5f, 0, 0.25f);
 
         _lights[idx] = lightGameObject;
     }
 
     public void AddRotationScript(int idx)
     {
-        _objs[idx].AddComponent<ObjectRotate>();
-        _objs[idx].GetComponent<ObjectRotate>().enabled = false;
+        _rObjs[idx].AddComponent<ObjectRotate>();
+        _rObjs[idx].GetComponent<ObjectRotate>().enabled = false;
     }
 
     #endregion GUI initialisation scripts
@@ -150,11 +164,10 @@ class View
             Vector3 bounds = meshes[i].bounds.size;
             float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]/2); //weight the z axis down a bit, as plane of view is x y
 
-            _meshFilters[i].transform.localPosition = _cams[i].transform.localPosition + new Vector3(0, 0, 1);
-
             if (maxBound != 0)
             {
                 _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
+                _objs[i].transform.localPosition = -meshes[i].bounds.center / maxBound;
                 //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
             }
         }
@@ -194,7 +207,7 @@ class View
     {
         _zoomed = true;
         _activeCam = _cams[rawSelectionNum];
-        _activeObj = _objs[rawSelectionNum];
+        _activeObj = _rObjs[rawSelectionNum];
 
         _mainCam.gameObject.SetActive(false);
 
