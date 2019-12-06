@@ -1,0 +1,222 @@
+{
+  "0": {
+    "_axiom": "F-F-F-F",
+    "_rules": {
+      "F": "F-FF--F-F",
+      "G": "F-FF--F-F"
+    },
+    "_terminals": {},
+    "_alphabet": "FG",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 2
+  },
+  "1": {
+    "_axiom": "F-F-F-F",
+    "_rules": {
+      "F": "F+F-G-F+F",
+      "G": "F-FF--F-F"
+    },
+    "_terminals": {},
+    "_alphabet": "FG",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 2
+  },
+  "2": {
+    "_axiom": "+G",
+    "_rules": {
+      "F": "F",
+      "G": "+H-GG-H+",
+      "H": "-G+HH+G-"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 3
+  },
+  "3": {
+    "_axiom": "F+F+F+F",
+    "_rules": {
+      "F": "GffG"
+    },
+    "_terminals": {},
+    "_alphabet": "FG",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 1
+  },
+  "4": {
+    "_axiom": "F--F",
+    "_rules": {
+      "F": "F-FFGF",
+      "G": "F-FG+"
+    },
+    "_terminals": {},
+    "_alphabet": "FG",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 2
+  },
+  "5": {
+    "_axiom": "G",
+    "_rules": {
+      "F": "F",
+      "G": "G-F+HFH+F-&F^-F+&&GFG+F+G",
+      "H": "&F^HFG^F^^^-F-F^H+F+G^F^"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Hilbert 3D",
+    "_ruleCount": 3
+  },
+  "6": {
+    "_axiom": "H-F&G^F",
+    "_rules": {
+      "F": "FGHH&&G-",
+      "G": "G-F&^F-&F^-F+G+F+G",
+      "H": "&F^-F-F^H+F+G^F^"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Hilbert 3D",
+    "_ruleCount": 3
+  },
+  "7": {
+    "_axiom": "G-G^G^G",
+    "_rules": {
+      "F": "+H-£GG£-H+",
+      "G": "+F&GHG&F+",
+      "H": "-G^&&^F-"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Hilbert 3D",
+    "_ruleCount": 3
+  },
+  "8": {
+    "_axiom": "-G",
+    "_rules": {
+      "F": "F",
+      "G": "+H^GG^H+",
+      "H": "-G&HH&G-"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 3
+  },
+  "9": {
+    "_axiom": "G",
+    "_rules": {
+      "F": "H-",
+      "G": "G-F+H&^&F+GFG++G",
+      "H": "&^HG+-&-F^++G^F^"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Hilbert 3D",
+    "_ruleCount": 3
+  },
+  "10": {
+    "_axiom": "F-F&F&F+F",
+    "_rules": {
+      "F": "+H+H",
+      "G": "G+G",
+      "H": "F-&"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Hilbert 3D",
+    "_ruleCount": 3
+  },
+  "11": {
+    "_axiom": "F-F-F-F",
+    "_rules": {
+      "F": "F+&F-G-F&+F",
+      "G": "F-^FF--F^-F"
+    },
+    "_terminals": {},
+    "_alphabet": "FG",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 2
+  },
+  "12": {
+    "_axiom": "H|H^ff^H|H",
+    "_rules": {
+      "F": "H",
+      "G": "+H!-GG-!H+",
+      "H": "-G+HFH+G-"
+    },
+    "_terminals": {},
+    "_alphabet": "FGH",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 3
+  },
+  "13": {
+    "_axiom": "F-G-F-G",
+    "_rules": {
+      "F": "F+F-G-F+F",
+      "G": "H^HH^^H^H",
+      "I": "G&GG&&G&G"
+    },
+    "_terminals": {},
+    "_alphabet": "FGHI",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 3
+  },
+  "14": {
+    "_axiom": "$I^I^I^I-I-I-I^I^I^I^I",
+    "_rules": {
+      "F": "F",
+      "G": "H^HH^^H^H",
+      "H": "H",
+      "I": "G&GG&&G&G"
+    },
+    "_terminals": {},
+    "_alphabet": "FGHI",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 4
+  },
+  "15": {
+    "_axiom": "F^H&G-I",
+    "_rules": {
+      "F": "G+F+G",
+      "G": "F-G-F",
+      "H": "I+H+I",
+      "I": "H-I-H"
+    },
+    "_terminals": {},
+    "_alphabet": "FGHI",
+    "_valid": true,
+    "_angle": 90.0,
+    "_category": "Fractal",
+    "_ruleCount": 4
+  }
+}

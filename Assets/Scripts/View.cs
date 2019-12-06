@@ -86,8 +86,8 @@ class View
         Camera newCam = new GameObject("cam" + idx).AddComponent<Camera>();
         newCam.transform.position = new Vector3(250 * (idx + 1), 0, 0);
         newCam.targetTexture = Resources.Load<RenderTexture>("Materials/rendText" + idx.ToString());
-        newCam.orthographic = true;
-        newCam.orthographicSize = 1;
+        //newCam.orthographic = true;
+        //newCam.orthographicSize = 1;
         newCam.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
 
         _cams[idx] = newCam;
@@ -130,6 +130,7 @@ class View
         _meshFilters[idx] = mf;
         mf.gameObject.AddComponent<MeshRenderer>();
         mf.gameObject.GetComponent<Renderer>().material = _material;
+      
     }
 
     //adds a pointlight for each object
