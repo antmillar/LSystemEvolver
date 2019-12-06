@@ -6,16 +6,18 @@ public class Model
     public RuleSet[] _rulesets;
     public Mesh[] meshes;
     public GeneticAlgo gaRules, gaAxioms;
-    int _childCount;
-    Encoder _encode, _encodeAxiom;
+    int _childCount, _iterationCount;
+    Encoder _encode;
     string[][] _sampleRules, _sampleAxioms;
     float _mutationRate;
 
 
-    public Model(int childCount, float mutationRate)
+    public Model(int childCount, int iterationCount, float mutationRate)
     {
+
         _mutationRate = mutationRate;
         _childCount = childCount;
+        _iterationCount = iterationCount;
 
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
@@ -29,7 +31,6 @@ public class Model
         _sampleAxioms = new string[_childCount][];
 
         _encode = new Encoder("Ff-+|!£\"GHI^&$");
-        _encodeAxiom = new Encoder("FGHI");
 
         //get the L systems from database and assign them to a gameobject which is created here
         for (int i = 0; i < _childCount; i++)
@@ -72,7 +73,7 @@ public class Model
     public Mesh MeshFromRuleset(RuleSet ruleSet)
     {
         //create L system
-        LSystem ls = new LSystem(ruleSet._axiom, 4, ruleSet);
+        LSystem ls = new LSystem(ruleSet._axiom, _iterationCount, ruleSet);
         string lSystemOutput = ls.Generate();
 
         //use turtle to create mesh of L system
@@ -98,7 +99,7 @@ public class Model
 
         Encoder encoder = _encode;
         Fitness fitness = new Fitness("");
-        Population population = new Population(16, encoder._symbols, samplePopulation: _sampleGenomes, variableGenomeLength: true);
+        Population population = new Population(_childCount, encoder._symbols, samplePopulation: _sampleGenomes, variableGenomeLength: true);
         Selection selection = new Selection(selectType);
         CrossOver crossover = new CrossOver(crossType);
         Mutation mutation = new Mutation(mutateType, _mutationRate);

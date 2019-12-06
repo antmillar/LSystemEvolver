@@ -93,34 +93,6 @@
     "_ruleCount": 3
   },
   "7": {
-    "_axiom": "G-G^G^G",
-    "_rules": {
-      "F": "+H-£GG£-H+",
-      "G": "+F&GHG&F+",
-      "H": "-G^&&^F-"
-    },
-    "_terminals": {},
-    "_alphabet": "FGH",
-    "_valid": true,
-    "_angle": 90.0,
-    "_category": "Hilbert 3D",
-    "_ruleCount": 3
-  },
-  "8": {
-    "_axiom": "-G",
-    "_rules": {
-      "F": "F",
-      "G": "+H^GG^H+",
-      "H": "-G&HH&G-"
-    },
-    "_terminals": {},
-    "_alphabet": "FGH",
-    "_valid": true,
-    "_angle": 90.0,
-    "_category": "Fractal",
-    "_ruleCount": 3
-  },
-  "9": {
     "_axiom": "G",
     "_rules": {
       "F": "H-",
@@ -134,22 +106,8 @@
     "_category": "Hilbert 3D",
     "_ruleCount": 3
   },
-  "10": {
-    "_axiom": "F-F&F&F+F",
-    "_rules": {
-      "F": "+H+H",
-      "G": "G+G",
-      "H": "F-&"
-    },
-    "_terminals": {},
-    "_alphabet": "FGH",
-    "_valid": true,
-    "_angle": 90.0,
-    "_category": "Hilbert 3D",
-    "_ruleCount": 3
-  },
-  "11": {
-    "_axiom": "F-F-F-F",
+  "8": {
+    "_axiom": "F-F-F-F-G",
     "_rules": {
       "F": "F+&F-G-F&+F",
       "G": "F-^FF--F^-F"
@@ -161,7 +119,7 @@
     "_category": "Fractal",
     "_ruleCount": 2
   },
-  "12": {
+  "9": {
     "_axiom": "H|H^ff^H|H",
     "_rules": {
       "F": "H",
@@ -175,7 +133,7 @@
     "_category": "Fractal",
     "_ruleCount": 3
   },
-  "13": {
+  "10": {
     "_axiom": "F-G-F-G",
     "_rules": {
       "F": "F+F-G-F+F",
@@ -189,28 +147,13 @@
     "_category": "Fractal",
     "_ruleCount": 3
   },
-  "14": {
+  "11": {
     "_axiom": "$I^I^I^I-I-I-I^I^I^I^I",
     "_rules": {
       "F": "F",
       "G": "H^HH^^H^H",
       "H": "H",
       "I": "G&GG&&G&G"
-    },
-    "_terminals": {},
-    "_alphabet": "FGHI",
-    "_valid": true,
-    "_angle": 90.0,
-    "_category": "Fractal",
-    "_ruleCount": 4
-  },
-  "15": {
-    "_axiom": "F^H&G-I",
-    "_rules": {
-      "F": "G+F+G",
-      "G": "F-G-F",
-      "H": "I+H+I",
-      "I": "H-I-H"
     },
     "_terminals": {},
     "_alphabet": "FGHI",

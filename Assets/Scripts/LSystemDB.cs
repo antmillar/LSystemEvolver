@@ -130,7 +130,7 @@ public static class InitialiseDB
         //rs11.AddTerminal("H", "F");
         rs11.Validate();
 
-        RuleSet rs12 = new RuleSet("Fractal", "F-F-F-F", "FG", 90f);
+        RuleSet rs12 = new RuleSet("Fractal", "F-F-F-F-G", "FG", 90f);
         rs12.AddRule("F", "F+&F-G-F&+F");
         rs12.AddRule("G", "F-^FF--F^-F");
         //rs12.AddTerminal("G", "F");
@@ -176,15 +176,15 @@ public static class InitialiseDB
         DB.AddSystem(rs5);
         DB.AddSystem(rs6);
         DB.AddSystem(rs7);
-        DB.AddSystem(rs8);
-        DB.AddSystem(rs9);
+        //DB.AddSystem(rs8);
+        //DB.AddSystem(rs9);
         DB.AddSystem(rs10);
-        DB.AddSystem(rs11);
+        //DB.AddSystem(rs11);
         DB.AddSystem(rs12);
         DB.AddSystem(rs13);
         DB.AddSystem(rs14);
         DB.AddSystem(rs15);
-        DB.AddSystem(rs16);
+        //DB.AddSystem(rs16);
 
         DB.WriteToFile();
     }

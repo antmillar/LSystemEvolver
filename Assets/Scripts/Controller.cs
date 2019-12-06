@@ -5,15 +5,21 @@ public class Controller : MonoBehaviour {
 
     Model model;
     View view;
-    [SerializeField] float _mutationRate;
+    float _mutationRate = 0.1f;
+    int _childCount = 12;
+    int _iterationCount = 4;
     [SerializeField] Material _material;
 
-    private void Start () {
+    private void Awake () {
 
-        int childCount = 16;
-        view = new View(childCount, _material);
-        model = new Model(childCount, _mutationRate);
-        
+        Initialise();
+    }
+
+    public void Initialise()
+    {
+        view = new View(_childCount, _material);
+        model = new Model(_childCount, _iterationCount, _mutationRate);
+
         view.MeshesToMeshFilters(model.meshes);
         view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
     }
@@ -36,8 +42,27 @@ public class Controller : MonoBehaviour {
 
     public void Update()
     {
+
         if (Input.GetMouseButtonDown(1))
+        {
             view.OnClickRightClick();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        if (Input.GetKeyDown("space") & view._zoomed == false)
+        {
+
+            model = new Model(_childCount, _iterationCount,  _mutationRate);
+
+            view.MeshesToMeshFilters(model.meshes);
+            view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
+        }
+
+
     }
 }
 

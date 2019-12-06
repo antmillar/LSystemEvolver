@@ -16,7 +16,7 @@ class View
     GameObject _activeObj;
     
     int _childCount;
-    bool _zoomed;
+    public bool _zoomed;
 
     public View(int childCount, Material material)
     {
@@ -69,7 +69,7 @@ class View
         rotateObj.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
 
 
-        rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 1) + new Vector3(0, 0, 1); ;
+        rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 2) ; //z offset 2 from camera
 
         newObj.transform.parent = rotateObj.transform;
 
@@ -93,23 +93,24 @@ class View
         _cams[idx] = newCam;
     }
 
-    //adds caption underneath raw image
+    //adds l system caption underneath raw image
     public void AddCaption(int idx)
     {
         //Add game objects to hold text captions
         GameObject textObject = new GameObject();
-        textObject.transform.SetParent(_rawImages[idx].transform);
+        RectTransform parentImage = _rawImages[idx].rectTransform;
+        textObject.transform.SetParent(parentImage);
 
         //Add text to game objects created and format/position
         Text textCaption = textObject.AddComponent<Text>();
         textCaption.name = "TextCaption" + idx.ToString();
         textCaption.font = Resources.Load<Font>("Fonts/UnicaOne-Regular");
-        textCaption.fontSize = 8;
+        textCaption.fontSize = 6;
         textCaption.horizontalOverflow = HorizontalWrapMode.Overflow;
-        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150f);
-        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 40f);
+        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, parentImage.rect.width);
+        textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, parentImage.rect.height * 0.25f);
         textCaption.rectTransform.localScale = new Vector3(1, 1, 1);
-        textCaption.rectTransform.localPosition = new Vector3(0, -90, 0); //offset of the caption from image
+        textCaption.rectTransform.localPosition = new Vector3(0, -0.5f * parentImage.rect.height , 0); //offset of the caption from image
 
         textCaption.gameObject.AddComponent<Button>();
         textCaption.gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickFocus(idx));
@@ -142,7 +143,7 @@ class View
         light.type = LightType.Point;
         light.intensity = 10;
  
-        lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), false);
+        lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), true);
         light.transform.localPosition = new Vector3(-0.5f, 0, 0.25f);
 
         _lights[idx] = lightGameObject;
@@ -251,5 +252,6 @@ class View
         _canvasInfo.gameObject.SetActive(false); //turn off the info HUD
         toggleRotationScript();
     }
+
 }
 
