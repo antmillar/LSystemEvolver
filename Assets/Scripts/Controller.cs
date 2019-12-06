@@ -64,6 +64,9 @@ public class Controller : MonoBehaviour {
 
 
     }
+
+
+
 }
 
 //subdivision as rescaling, read catmull clark??
