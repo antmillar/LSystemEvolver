@@ -2,8 +2,8 @@
 
 public class ObjectRotate : MonoBehaviour
 {
-    float _xSpeed = 120.0f;
-    float _ySpeed = 120.0f;
+    float _xSpeed = 5.0f;
+    float _ySpeed = 5.0f;
 
     float _x = 0.0f;
     float _y = 0.0f;
@@ -23,15 +23,31 @@ public class ObjectRotate : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(2))
         {
-            _x += Input.GetAxis("Mouse X") * _xSpeed * 0.02f;
-            _y -= Input.GetAxis("Mouse Y") * _ySpeed * 0.02f;
+            _x += Input.GetAxis("Mouse X") * _xSpeed;
+            _y -= Input.GetAxis("Mouse Y") * _ySpeed;
             Quaternion rotation = Quaternion.Euler(_y, _x, 0);
             this.transform.rotation = rotation;
         }
 
-        if(Input.GetAxis("Mouse ScrollWheel") != 0)
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            _x -= _xSpeed;
+            //_y -= _ySpeed;
+            Quaternion rotation = Quaternion.Euler(_y, _x, 0);
+            this.transform.rotation = rotation;
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            _x += _xSpeed;
+            //_y += _ySpeed;
+            Quaternion rotation = Quaternion.Euler(_y, _x, 0);
+            this.transform.rotation = rotation;
+        }
+               
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
             float zoom = -Input.GetAxis("Mouse ScrollWheel") * _zoomSpeed;
             this.transform.localPosition += new Vector3(0, 0, zoom);

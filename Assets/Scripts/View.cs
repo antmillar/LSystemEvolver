@@ -49,7 +49,6 @@ class View
         for (int i = 0; i < _childCount; i++)
         {
             AddObject(i);
-
             AddCamera(i);
             AddImageButton(i);
             AddCaption(i);
@@ -74,7 +73,7 @@ class View
         newObj.transform.parent = rotateObj.transform;
 
         newObj.transform.localPosition = Vector3.zero;
-        newObj.transform.eulerAngles = new Vector3(15, 30, 0);
+        newObj.transform.localEulerAngles = new Vector3(15, 0, 0);
 
         _rObjs[idx] = rotateObj;
         _objs[idx] = newObj;
@@ -166,10 +165,11 @@ class View
             Vector3 bounds = meshes[i].bounds.size;
             float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]/2); //weight the z axis down a bit, as plane of view is x y
 
+            //issue here with scaling up tiny meshes
             if (maxBound != 0)
             {
                 _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
-                _objs[i].transform.localPosition = -meshes[i].bounds.center / maxBound;
+                _objs[i].transform.localPosition = -meshes[i].bounds.center/ maxBound;
                 //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
             }
         }
