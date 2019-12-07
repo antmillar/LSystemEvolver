@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
-
+using System.Collections;
 public class Model
 {
     public RuleSet[] _rulesets;
@@ -10,7 +10,6 @@ public class Model
     Encoder _encode;
     string[][] _sampleRules, _sampleAxioms;
     float _mutationRate;
-
 
     public Model(int childCount, int iterationCount, float mutationRate)
     {
@@ -82,9 +81,26 @@ public class Model
         turtle.CreateMesh();
 
         Mesh mesh = turtle._finalMesh;
-        mesh.RecalculateNormals();
 
         return mesh;
+    }
+
+    public IEnumerator AnimateMesh(int objNum, View view)
+    {
+        var ruleSet = _rulesets[objNum];
+        LSystem ls = new LSystem(ruleSet._axiom, _iterationCount, ruleSet);
+        string lSystemOutput = ls.Generate();
+
+        //use turtle to create mesh of L system
+        Turtle turtle = new Turtle(ruleSet._angle);
+        turtle.Decode(lSystemOutput);
+
+        for(int i = 0; i < turtle._meshes.Count; i++)
+        {
+            turtle.PartialMesh(i);
+            view.MeshRedraw(turtle._partialMesh);
+            yield return new WaitForSeconds(0.02f);
+        }
     }
 
     //sets up the initial GA

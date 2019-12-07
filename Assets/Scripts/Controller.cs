@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.Collections;
+
 public class Controller : MonoBehaviour {
 
-    Model model;
+    public Model model;
     View view;
     float _mutationRate = 0.1f;
     int _childCount = 12;
     int _iterationCount = 4;
     [SerializeField] Material _material;
+    public static int counter = 0;
 
     private void Awake () {
 
@@ -63,8 +66,15 @@ public class Controller : MonoBehaviour {
         }
 
 
-    }
+        if(Input.GetKeyDown("r") & view._zoomed == true)
+        {
 
+            int objNum = view.GetActiveNumber();
+            StartCoroutine(model.AnimateMesh(objNum, view));
+
+
+        }
+    }
 
 
 }

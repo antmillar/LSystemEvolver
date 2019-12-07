@@ -9,11 +9,12 @@ class Turtle
     Vector3 _pos, _heading, _orientation;
     Stack<Vector3> _pointStack;
     Stack<Vector3[]> _transformStack;
-    float _lineAngle, _lineWidth, _widthRatio, _stepLength, _lineWidthRatio;
+    float _lineAngle, _widthRatio, _stepLength, _lineWidthRatio;
 
-    List<Mesh> _lineMeshes;
+    public List<Mesh> _meshes;
 
-    public Mesh _finalMesh;
+    public Mesh _finalMesh, _partialMesh;
+
 
     public Turtle(float defaultAngle)
     {
@@ -24,7 +25,7 @@ class Turtle
         _transformStack = new Stack<Vector3[]>();
         _lineAngle = defaultAngle;
         _stepLength = 0.05f;
-        _lineMeshes = new List<Mesh>();
+        _meshes = new List<Mesh>();
         _widthRatio = 0.25f;
         _lineWidthRatio = 0.2f;
     }
@@ -68,7 +69,7 @@ class Turtle
                     break;
 
                 case '|': //turn around
-                    Turn(180f);
+                    Turn(2 * _lineAngle);
                     break;
 
                 case '[': //push pos & heading to memory
@@ -91,7 +92,7 @@ class Turtle
 
                 case '$': //rescale step size
 
-                    _stepLength *= 2f;
+                    _stepLength *= 1.5f;
                     break;
 
                 case '!': //rescale line width
@@ -106,12 +107,12 @@ class Turtle
 
                 case '&': //pitch down by angle
 
-                    Pitch(-90f);
+                    Pitch(-1 * _lineAngle);
                     break;
 
                 case '^': //pitch up by angle
                     
-                    Pitch(90f);
+                    Pitch(_lineAngle);
                     break;
 
                 default:
@@ -193,9 +194,8 @@ class Turtle
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;
-        //mesh.SetIndices(indices, MeshTopology.Lines, 0); //can't use different mesh topologies with combine mesh..
         mesh.triangles = indices;
-        _lineMeshes.Add(mesh);
+        _meshes.Add(mesh);
     }
 
     //draws a two side strip
@@ -285,13 +285,12 @@ class Turtle
         mesh.triangles = triangles;
         mesh.uv = uvs;
 
-        mesh.RecalculateBounds();
         mesh.RecalculateNormals();
 
-        _lineMeshes.Add(mesh);
+        _meshes.Add(mesh);
     }
 
-    //deprecated : fraws lines using line renderer
+    //deprecated : draws lines using line renderer
     private void DrawLine()
     {
 
@@ -307,7 +306,6 @@ class Turtle
         lineRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
         lineRenderer.startColor = color;
         lineRenderer.endColor = color;
-        lineRenderer.startWidth = _lineWidth;
         lineRenderer.SetPosition(0, start);
         lineRenderer.SetPosition(1, end);
         //GameObject.Destroy(myLine, duration);
@@ -319,9 +317,23 @@ class Turtle
         //combine meshes
         var finalMesh = new Mesh();
 
-        var instances = _lineMeshes.Select(m => new CombineInstance() { mesh = m, transform = Matrix4x4.identity });
+        var instances = _meshes.Select(m => new CombineInstance() { mesh = m, transform = Matrix4x4.identity });
 
         finalMesh.CombineMeshes(instances.ToArray());
         _finalMesh = finalMesh;
     }
+
+    //draws a mesh up to the number of steps
+    public void PartialMesh(int steps)
+    {
+        var partialMesh = new Mesh();
+
+        var instances = _meshes.Take(steps).Select(m => new CombineInstance() { mesh = m, transform = Matrix4x4.identity });
+
+        partialMesh.CombineMeshes(instances.ToArray());
+        _partialMesh = partialMesh;
+
+    }
+
+    
 }

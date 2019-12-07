@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
-class View
+public class View
 {
     MeshFilter[] _meshFilters;
     RawImage[] _rawImages;
@@ -165,16 +165,27 @@ class View
             Vector3 bounds = meshes[i].bounds.size;
             float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]/2); //weight the z axis down a bit, as plane of view is x y
 
-            //issue here with scaling up tiny meshes
-            if (maxBound != 0)
-            {
-                _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
-                _objs[i].transform.localPosition = -meshes[i].bounds.center/ maxBound;
-                //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
-            }
+
+            maxBound = maxBound < 0.2 ? 0.2f : maxBound; //stops infinitely large scaling up
+
+            if (float.IsInfinity(maxBound)) { Debug.Log("Issue with infinitely large dimensions, Mesh won't render"); }
+
+            _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
+            _objs[i].transform.localPosition = -meshes[i].bounds.center/ maxBound;
+            //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
+            
         }
     }
 
+    public void MeshRedraw(Mesh stepMesh)
+    {
+        _activeObj.GetComponentInChildren<MeshFilter>().mesh = stepMesh;
+    }
+
+    public int GetActiveNumber()
+    {
+        return int.Parse(_activeObj.name.Substring(4, 1));
+    }
     public void UpdateGuiText(RuleSet[] ruleSets, int generation)
     {
         for (int i = 0; i < _childCount; i++)
@@ -251,6 +262,7 @@ class View
         _zoomed = false;
         _canvasInfo.gameObject.SetActive(false); //turn off the info HUD
         toggleRotationScript();
+        Controller.counter = 0;
     }
 
 }
