@@ -119,8 +119,16 @@ public class View
     //adds the button to raw image
     public void AddImageButton(int idx)
     {
-        _rawImages[idx].gameObject.AddComponent<Button>();
-        _rawImages[idx].gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickImage(idx));
+        Button btn = _rawImages[idx].gameObject.AddComponent<Button>();
+
+        ColorBlock cb = btn.colors;
+        cb.highlightedColor = new Color(0.85f, 0.3f, 0.3f); //pink
+        cb.pressedColor = new Color(0, 0, 0); //black
+
+        btn.colors = cb;
+        btn.onClick.AddListener(() => OnClickImage(idx));
+        
+
     }
 
     public void AddMeshToObj(int idx)

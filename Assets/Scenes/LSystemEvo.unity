@@ -930,9 +930,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 113762f9926fb6d41be488f5ac40137c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveKey: 97
-  saveName: SavedMesh
-  selectedGameObject: {fileID: 0}
 --- !u!4 &956489567
 Transform:
   m_ObjectHideFlags: 0

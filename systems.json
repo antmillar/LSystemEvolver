@@ -40,16 +40,17 @@
     "_ruleCount": 3
   },
   "3": {
-    "_axiom": "F+F+F+F",
+    "_axiom": "F-G-G-F+F-G-G-F",
     "_rules": {
-      "F": "GffG"
+      "F": "F-G+F+G-F",
+      "G": "GG"
     },
     "_terminals": {},
-    "_alphabet": "FG",
+    "_alphabet": "FGH",
     "_valid": true,
     "_angle": 90.0,
     "_category": "Fractal",
-    "_ruleCount": 1
+    "_ruleCount": 2
   },
   "4": {
     "_axiom": "F--F",
@@ -82,8 +83,8 @@
     "_axiom": "H-F&G^F",
     "_rules": {
       "F": "FGHH&&G-",
-      "G": "G-F&^F-&F^-F+G+F+G",
-      "H": "&F^-F-F^H+F+G^F^"
+      "G": "G-F&^F-F+G+F+G",
+      "H": "F^-F-F^H+F+GF^"
     },
     "_terminals": {},
     "_alphabet": "FGH",
