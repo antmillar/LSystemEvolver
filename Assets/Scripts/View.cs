@@ -119,14 +119,14 @@ public class View
     //adds the button to raw image
     public void AddImageButton(int idx)
     {
-        Button btn = _rawImages[idx].gameObject.AddComponent<Button>();
+        Button btnImage = _rawImages[idx].gameObject.AddComponent<Button>();
 
-        ColorBlock cb = btn.colors;
+        ColorBlock cb = btnImage.colors;
         cb.highlightedColor = new Color(0.85f, 0.3f, 0.3f); //pink
         cb.pressedColor = new Color(0, 0, 0); //black
 
-        btn.colors = cb;
-        btn.onClick.AddListener(() => OnClickImage(idx));
+        btnImage.colors = cb;
+        btnImage.onClick.AddListener(() => OnClickImage(idx));
         
 
     }
@@ -151,7 +151,7 @@ public class View
         light.intensity = 10;
  
         lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), true);
-        light.transform.localPosition = new Vector3(-0.5f, 0, 0.25f);
+        light.transform.localPosition = new Vector3(-1.5f, 0.5f, 0.25f);
 
         _lights[idx] = lightGameObject;
     }
@@ -185,14 +185,21 @@ public class View
         }
     }
 
+    //applies partially complete mesh to mf
     public void MeshRedraw(Mesh stepMesh)
     {
         _activeObj.GetComponentInChildren<MeshFilter>().mesh = stepMesh;
     }
 
+    //writes turtle instructions to text object
+    public void InstructionsRewrite(string partialInstructions)
+    {
+        GameObject.Find("TextPartial").GetComponent<Text>().text = partialInstructions;
+    }
+
     public int GetActiveNumber()
     {
-        return int.Parse(_activeObj.name.Substring(4, 1));
+        return int.Parse(_activeObj.name.Substring(4));
     }
     public void UpdateGuiText(RuleSet[] ruleSets, int generation)
     {

@@ -14,6 +14,7 @@ class Turtle
     public List<Mesh> _meshes;
 
     public Mesh _finalMesh, _partialMesh;
+    public string _instructions, _partialInstructions;
 
 
     public Turtle(float defaultAngle)
@@ -33,7 +34,7 @@ class Turtle
     //parses the string instructions to draw the shape
     public void Decode(string instructions)
     {
-
+        _instructions = instructions;
         if (instructions == null) { throw new NullReferenceException("ERROR : null input to Turtle"); }
         foreach (char c in instructions)
         {
@@ -331,8 +332,9 @@ class Turtle
         var instances = _meshes.Take(steps).Select(m => new CombineInstance() { mesh = m, transform = Matrix4x4.identity });
 
         partialMesh.CombineMeshes(instances.ToArray());
-        _partialMesh = partialMesh;
 
+        _partialMesh = partialMesh;
+        _partialInstructions = string.Join("", _instructions.Take(steps).ToArray());
     }
 
     

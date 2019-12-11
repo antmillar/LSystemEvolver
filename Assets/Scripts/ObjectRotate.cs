@@ -2,8 +2,8 @@
 
 public class ObjectRotate : MonoBehaviour
 {
-    float _xSpeed = 2.5f;
-    float _ySpeed = 2.5f;
+    float _xSpeed = 1.5f;
+    float _ySpeed = 1.5f;
 
     float _x = 0.0f;
     float _y = 0.0f;
@@ -65,6 +65,24 @@ public class ObjectRotate : MonoBehaviour
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
             float zoom = -Input.GetAxis("Mouse ScrollWheel") * _zoomSpeed;
+            this.transform.localPosition += new Vector3(0, 0, zoom);
+            float zPos = this.transform.localPosition.z;
+            this.transform.localPosition = new Vector3(this.transform.localPosition.x, this.transform.localPosition.y, ClampZ(zPos, _zoomMin, _zoomMax));
+        }
+
+        if (Input.GetKey("w"))
+        {
+            float zoom = 0f;
+            zoom -= 0.01f * _zoomSpeed;
+            this.transform.localPosition += new Vector3(0, 0, zoom);
+            float zPos = this.transform.localPosition.z;
+            this.transform.localPosition = new Vector3(this.transform.localPosition.x, this.transform.localPosition.y, ClampZ(zPos, _zoomMin, _zoomMax));
+        }
+
+        if (Input.GetKey("s"))
+        {
+            float zoom = 0f;
+            zoom += 0.01f * _zoomSpeed;
             this.transform.localPosition += new Vector3(0, 0, zoom);
             float zPos = this.transform.localPosition.z;
             this.transform.localPosition = new Vector3(this.transform.localPosition.x, this.transform.localPosition.y, ClampZ(zPos, _zoomMin, _zoomMax));

@@ -37,7 +37,7 @@ public class Model
             //get the rule sets for samples from DB
             RuleSet tempRS = new RuleSet(systemsJSON[(i % systemsJSON.Count).ToString()]);
             _rulesets[i] = tempRS;
-            meshes[i] = MeshFromRuleset(_rulesets[i]);
+            meshes[i] = MeshFromRuleset(i);
             EncodeSamples(i);
         }
 
@@ -69,14 +69,14 @@ public class Model
     }
 
     //generates a mesh from a l system ruleset
-    public Mesh MeshFromRuleset(RuleSet ruleSet)
+    public Mesh MeshFromRuleset(int idx)
     {
         //create L system
-        LSystem ls = new LSystem(ruleSet._axiom, _iterationCount, ruleSet);
+        LSystem ls = new LSystem(_rulesets[idx]._axiom, _iterationCount, _rulesets[idx]);
         string lSystemOutput = ls.Generate();
 
         //use turtle to create mesh of L system
-        Turtle turtle = new Turtle(ruleSet._angle);
+        Turtle turtle = new Turtle(_rulesets[idx]._angle);
         turtle.Decode(lSystemOutput);
         turtle.CreateMesh();
 
@@ -98,8 +98,10 @@ public class Model
         for(int i = 0; i < turtle._meshes.Count; i++)
         {
             turtle.PartialMesh(i);
-            view.MeshRedraw(turtle._partialMesh);
-            yield return new WaitForSeconds(0.02f);
+
+            //view.InstructionsRewrite(turtle._partialInstructions); //writes the turtle instructions to screen (used in video)
+            view.MeshRedraw(turtle._partialMesh); //redraws the partial mesh
+            yield return new WaitForSeconds(0.01f);
         }
     }
 
@@ -163,7 +165,7 @@ public class Model
         for (int i = 0; i < _childCount; i++)
         {
             int j = i;
-            meshes[i] = MeshFromRuleset(_rulesets[j]);
+            meshes[i] = MeshFromRuleset(i);
         }
     }
 }

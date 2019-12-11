@@ -12,14 +12,22 @@ public class Controller : MonoBehaviour {
     int _iterationCount = 4;
     [SerializeField] Material _material;
     public static int counter = 0;
+    IEnumerator animationCoroutine;
+    bool animationOn;
 
     private void Awake () {
 
         Initialise();
+
+        //Unity Recorder requires a software cursor to record it
+        var cursorTexture = Resources.Load<Texture2D>("Cursors/arrow-address");
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+
     }
 
     public void Initialise()
     {
+  
         view = new View(_childCount, _material);
         model = new Model(_childCount, _iterationCount, _mutationRate);
 
@@ -65,43 +73,44 @@ public class Controller : MonoBehaviour {
             view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
         }
 
-
+        //animates the turtle drawing the mesh
         if(Input.GetKeyDown("r") & view._zoomed == true)
         {
-
             int objNum = view.GetActiveNumber();
-            StartCoroutine(model.AnimateMesh(objNum, view));
 
-
+            if (animationOn)
+            {
+                StopCoroutine(animationCoroutine);
+                animationOn = false;
+            }
+            else
+            {
+                animationCoroutine = model.AnimateMesh(objNum, view);
+                StartCoroutine(animationCoroutine);
+                animationOn = true;
+            }
         }
+
+        //completes the mesh provided animation not on
+        if (Input.GetKeyDown("t") & view._zoomed == true)
+        {
+            int objNum = view.GetActiveNumber();
+
+            if (animationOn)
+            {
+                StopCoroutine(animationCoroutine);
+                view.MeshRedraw(model.MeshFromRuleset(objNum));
+            }
+
+            else
+            {
+                view.MeshRedraw(model.MeshFromRuleset(objNum));
+            }
+        }
+
     }
-
-
 }
 
-//subdivision as rescaling, read catmull clark??
-//quad subdivision and apply evo algo
-//need to allow rules with input of length 2
-
-//now it's possible to have two rules but all must have two rules
-
-//get rid of the genes/ char[][]
-//random seeds
-//can i replace xpt1 and ypt1 with one variable?
-
-
-//sort out how the genome allowed bases, the rule translation etc interlinked
-//add validation for the string of acceptable icons
-//remove the terminals and just don't draw with the turtle
-
-//add bracketing to strings
-//allow genomes to change number of genes during crossover
-
-//allow the angle to be a rule
-
-
-
-//figure out some seed genomes, what are the basic units of a form??
 
 
 
