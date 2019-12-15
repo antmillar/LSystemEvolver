@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
-using System.Collections;
 
-public class Controller : MonoBehaviour {
+public class Controller : MonoBehaviour
+{
 
     public Model model;
     View view;
@@ -15,7 +15,8 @@ public class Controller : MonoBehaviour {
     IEnumerator animationCoroutine;
     bool animationOn;
 
-    private void Awake () {
+    private void Awake()
+    {
 
         Initialise();
 
@@ -27,7 +28,7 @@ public class Controller : MonoBehaviour {
 
     public void Initialise()
     {
-  
+
         view = new View(_childCount, _material);
         model = new Model(_childCount, _iterationCount, _mutationRate);
 
@@ -67,14 +68,14 @@ public class Controller : MonoBehaviour {
         if (Input.GetKeyDown("space") & view._zoomed == false)
         {
 
-            model = new Model(_childCount, _iterationCount,  _mutationRate);
+            model = new Model(_childCount, _iterationCount, _mutationRate);
 
             view.MeshesToMeshFilters(model.meshes);
             view.UpdateGuiText(model._rulesets, model.gaRules.Population._generation);
         }
 
         //animates the turtle drawing the mesh
-        if(Input.GetKeyDown("r") & view._zoomed == true)
+        if (Input.GetKeyDown("r") & view._zoomed == true)
         {
             int objNum = view.GetActiveNumber();
 

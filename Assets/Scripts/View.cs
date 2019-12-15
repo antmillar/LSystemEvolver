@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 public class View
 {
     MeshFilter[] _meshFilters;
@@ -14,7 +14,7 @@ public class View
     Camera _mainCam, _activeCam;
     RenderTexture _activeRenderTexture;
     GameObject _activeObj;
-    
+
     int _childCount;
     public bool _zoomed;
 
@@ -68,7 +68,7 @@ public class View
         rotateObj.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
 
 
-        rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 2) ; //z offset 2 from camera
+        rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 2); //z offset 2 from camera
 
         newObj.transform.parent = rotateObj.transform;
 
@@ -109,7 +109,7 @@ public class View
         textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, parentImage.rect.width);
         textCaption.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, parentImage.rect.height * 0.25f);
         textCaption.rectTransform.localScale = new Vector3(1, 1, 1);
-        textCaption.rectTransform.localPosition = new Vector3(0, -0.5f * parentImage.rect.height , 0); //offset of the caption from image
+        textCaption.rectTransform.localPosition = new Vector3(0, -0.5f * parentImage.rect.height, 0); //offset of the caption from image
 
         textCaption.gameObject.AddComponent<Button>();
         textCaption.gameObject.GetComponent<Button>().onClick.AddListener(() => OnClickFocus(idx));
@@ -127,7 +127,7 @@ public class View
 
         btnImage.colors = cb;
         btnImage.onClick.AddListener(() => OnClickImage(idx));
-        
+
 
     }
 
@@ -138,7 +138,7 @@ public class View
         _meshFilters[idx] = mf;
         mf.gameObject.AddComponent<MeshRenderer>();
         mf.gameObject.GetComponent<Renderer>().material = _material;
-      
+
     }
 
     //adds a pointlight for each object
@@ -149,7 +149,7 @@ public class View
         Light light = lightGameObject.AddComponent<Light>();
         light.type = LightType.Point;
         light.intensity = 10;
- 
+
         lightGameObject.transform.SetParent(_cams[idx].GetComponent<Transform>(), true);
         light.transform.localPosition = new Vector3(-1.5f, 0.5f, 0.25f);
 
@@ -158,8 +158,8 @@ public class View
 
     public void AddRotationScript(int idx)
     {
-        _rObjs[idx].AddComponent<ObjectRotate>();
-        _rObjs[idx].GetComponent<ObjectRotate>().enabled = false;
+        _rObjs[idx].AddComponent<ObjectControl>();
+        _rObjs[idx].GetComponent<ObjectControl>().enabled = false;
     }
 
     #endregion GUI initialisation scripts
@@ -171,7 +171,7 @@ public class View
         {
             _meshFilters[i].mesh = meshes[i];
             Vector3 bounds = meshes[i].bounds.size;
-            float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2]/2); //weight the z axis down a bit, as plane of view is x y
+            float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2] / 2); //weight the z axis down a bit, as plane of view is x y
 
 
             maxBound = maxBound < 0.2 ? 0.2f : maxBound; //stops infinitely large scaling up
@@ -179,9 +179,9 @@ public class View
             if (float.IsInfinity(maxBound)) { Debug.Log("Issue with infinitely large dimensions, Mesh won't render"); }
 
             _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
-            _objs[i].transform.localPosition = -meshes[i].bounds.center/ maxBound;
+            _objs[i].transform.localPosition = -meshes[i].bounds.center / maxBound;
             //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
-            
+
         }
     }
 
@@ -225,7 +225,7 @@ public class View
     public void OnClickImage(int rawSelectionNum)
     {
         if (inputSelection.text == "") { inputSelection.text = rawSelectionNum.ToString(); }
-        else {inputSelection.text = inputSelection.text + " " + rawSelectionNum; }
+        else { inputSelection.text = inputSelection.text + " " + rawSelectionNum; }
         string[] inputs = inputSelection.text.Split(' ').Reverse().Take(5).Reverse().ToArray(); //take the last 5 inputs
         inputSelection.text = string.Join(" ", inputs);
 
@@ -255,7 +255,7 @@ public class View
 
     public void toggleRotationScript()
     {
-        ObjectRotate objectScript = _activeObj.GetComponent<ObjectRotate>();
+        ObjectControl objectScript = _activeObj.GetComponent<ObjectControl>();
         objectScript.enabled = !objectScript.enabled;
     }
 

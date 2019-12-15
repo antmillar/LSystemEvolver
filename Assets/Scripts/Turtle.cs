@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 //turtle graphics class
 class Turtle
@@ -12,10 +12,8 @@ class Turtle
     float _lineAngle, _widthRatio, _stepLength, _lineWidthRatio;
 
     public List<Mesh> _meshes;
-
     public Mesh _finalMesh, _partialMesh;
     public string _instructions, _partialInstructions;
-
 
     public Turtle(float defaultAngle)
     {
@@ -24,9 +22,9 @@ class Turtle
         _orientation = Vector3.back;
         _pointStack = new Stack<Vector3>();
         _transformStack = new Stack<Vector3[]>();
+        _meshes = new List<Mesh>();
         _lineAngle = defaultAngle;
         _stepLength = 0.05f;
-        _meshes = new List<Mesh>();
         _widthRatio = 0.25f;
         _lineWidthRatio = 0.2f;
     }
@@ -35,7 +33,9 @@ class Turtle
     public void Decode(string instructions)
     {
         _instructions = instructions;
+
         if (instructions == null) { throw new NullReferenceException("ERROR : null input to Turtle"); }
+
         foreach (char c in instructions)
         {
 
@@ -70,7 +70,7 @@ class Turtle
                     break;
 
                 case '|': //turn around
-                    Turn(2 * _lineAngle);
+                    Turn(180f);
                     break;
 
                 case '[': //push pos & heading to memory
@@ -86,22 +86,22 @@ class Turtle
                     _heading = recall[1];
                     break;
 
-                case '"': //rescale step size
+                case '"': //rescale step size down
 
                     _stepLength *= 0.5f;
                     break;
 
-                case '$': //rescale step size
+                case '$': //rescale step size up
 
                     _stepLength *= 1.5f;
                     break;
 
-                case '!': //rescale line width
+                case '!': //rescale line width down
 
                     _widthRatio *= 0.75f;
                     break;
 
-                case '£': //rescale line width
+                case '£': //rescale line width up
 
                     _widthRatio *= 1.25f;
                     break;
@@ -112,7 +112,7 @@ class Turtle
                     break;
 
                 case '^': //pitch up by angle
-                    
+
                     Pitch(_lineAngle);
                     break;
 
@@ -128,27 +128,25 @@ class Turtle
         AddPoint();
         Step();
         AddPoint();
-        if(s == "F" | s == "G")
+
+        if (s == "F" | s == "G")
         {
             DrawBoxMesh(1.0f, 1.0f);
         }
-        if(s == "H")
+        if (s == "H")
         {
-            DrawBoxMesh(2.0f, 0.5f);
+            DrawBoxMesh(2.0f, 0.5f); //wide, short
         }
-        if(s == "I")
+        if (s == "I")
         {
-            DrawBoxMesh(0.25f, 4.0f);
+            DrawBoxMesh(0.25f, 4.0f); // narrow, tall
         }
     }
-    
 
     private void Step()
     {
         _pos += _heading * _stepLength;
     }
-
- 
 
     private void AddPoint()
     {
@@ -169,7 +167,100 @@ class Turtle
         _orientation = Vector3.Cross(rotationAxis, _heading);
     }
 
-    //draws a line as a mesh
+    //draws a box of variable width/height but length of _stepLength
+    private void DrawBoxMesh(float widthScale, float heightScale)
+    {
+        float widthRatio = _stepLength / 2;
+
+        Vector3 start = _pointStack.Pop();
+        Vector3 end = _pointStack.Pop();
+
+        Vector3 lineVector = end - start; //vector pointing from start to end
+        Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation).normalized;
+        Vector3 widthVector = lineNormal * widthRatio * widthScale;
+        Vector3 heightVector = _orientation.normalized * widthRatio * heightScale;
+
+        //draw a rectangle around the start and end points
+        Vector3 startL = start - widthVector / 2;
+        Vector3 startR = start + widthVector / 2;
+        Vector3 endL = end - widthVector / 2;
+        Vector3 endR = end + widthVector / 2;
+
+        //draw the bottom plane of the box
+        Vector3 startLD = startL - heightVector / 2;
+        Vector3 startRD = startR - heightVector / 2;
+        Vector3 endLD = endL - heightVector / 2;
+        Vector3 endRD = endR - heightVector / 2;
+
+        Vector3[] vertices = {
+
+        //top vertices
+        startL,
+        startR,
+        endR,
+        endL,
+
+        //bottom vertices
+        endLD,
+        endRD,
+        startRD,
+        startLD,
+        };
+
+        int[] triangles = {
+            0, 2, 1, //face front
+	        0, 3, 2,
+            2, 3, 4, //face top
+	        2, 4, 5,
+            1, 2, 5, //face right
+	        1, 5, 6,
+            0, 7, 4, //face left
+	        0, 4, 3,
+            5, 4, 7, //face back
+	        5, 7, 6,
+            0, 6, 7, //face bottom
+	        0, 1, 6
+        };
+
+        Vector2[] uvMap =
+        {
+        //top vertices
+        new Vector2(0f,0f),
+        new Vector2(1f,0f),
+        new Vector2(1f,1f),
+        new Vector2(0f,1f),
+
+        //bottom vertices
+        new Vector2(1f,0f),
+        new Vector2(0f,0f),
+        new Vector2(0f,1f),
+        new Vector2(1f,1f),
+
+        };
+
+        //creating a new vertex for every face (for flat shading later) and map UVs
+        Vector3[] verticesNew = new Vector3[triangles.Length];
+        Vector2[] uvs = new Vector2[triangles.Length];
+
+        for (int i = 0; i < triangles.Length; i++)
+        {
+            verticesNew[i] = vertices[triangles[i]];
+            uvs[i] = uvMap[triangles[i]];
+            triangles[i] = i;
+        }
+
+        Mesh mesh = new Mesh();
+
+        mesh.vertices = verticesNew;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
+
+        mesh.RecalculateNormals();
+
+        _meshes.Add(mesh); //add box mesh to list of all the meshes create so far by turtle
+    }
+
+    //draws a line as a mesh, not used in final project as boxmesh is more general
     private void DrawLineMesh()
     {
         Vector3 start = _pointStack.Pop();
@@ -199,99 +290,8 @@ class Turtle
         _meshes.Add(mesh);
     }
 
-    //draws a two side strip
-    private void DrawBoxMesh(float widthScale, float heightScale)
-    {
-        float widthRatio = _stepLength / 2;
 
-        Vector3 start = _pointStack.Pop();
-        Vector3 end = _pointStack.Pop();
-
-        Vector3 lineVector = end - start; //vector pointing from start to end
-        Vector3 lineNormal = Vector3.Cross(lineVector, -_orientation).normalized;
-        Vector3 widthVector = lineNormal * widthRatio * widthScale;
-        Vector3 heightVector = _orientation.normalized * widthRatio * heightScale;
-
-        //draw a rectangle around the start and end points to represent a line
-        Vector3 startL = start - widthVector/2;
-        Vector3 startR = start + widthVector/2;
-        Vector3 endL = end - widthVector/2;
-        Vector3 endR = end + widthVector/2;
-
-        Vector3 startLD = startL - heightVector/2;
-        Vector3 startRD = startR - heightVector/2;
-        Vector3 endLD = endL - heightVector/2;
-        Vector3 endRD = endR - heightVector/2;
-
-        Vector3[] vertices = {
-
-        //front vertices
-        startL,
-        startR,
-        endR,
-        endL,
-
-        //back vertices
-        endLD,
-        endRD,
-        startRD,
-        startLD,
-        };
-
-        int[] triangles = {
-            0, 2, 1, //face front
-	        0, 3, 2,
-            2, 3, 4, //face top
-	        2, 4, 5,
-            1, 2, 5, //face right
-	        1, 5, 6,
-            0, 7, 4, //face left
-	        0, 4, 3,
-            5, 4, 7, //face back
-	        5, 7, 6,
-            0, 6, 7, //face bottom
-	        0, 1, 6
-        };
-
-        Vector2[] uvMap =
-        {
-        //front vertices
-        new Vector2(0f,0f),
-        new Vector2(1f,0f),
-        new Vector2(1f,1f),
-        new Vector2(0f,1f),
-
-        //back vertices
-        new Vector2(1f,0f),
-        new Vector2(0f,0f),
-        new Vector2(0f,1f),
-        new Vector2(1f,1f),
-
-        };
-
-        //creating a new vertex for every face (for flat shading later) and map UVs
-        Vector3[] verticesNew = new Vector3[triangles.Length];
-        Vector2[] uvs = new Vector2[triangles.Length];
-
-        for (int i = 0; i < triangles.Length; i++)
-        {
-            verticesNew[i] = vertices[triangles[i]];
-            uvs[i] = uvMap[triangles[i]];
-            triangles[i] = i;
-        }
-
-        Mesh mesh = new Mesh();
-
-        mesh.vertices = verticesNew;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
-
-        mesh.RecalculateNormals();
-
-        _meshes.Add(mesh);
-    }
-
-    //deprecated : draws lines using line renderer
+    //deprecated : draws lines using line renderer, too heavy as instatiates lots of GOs
     private void DrawLine()
     {
 
@@ -312,10 +312,9 @@ class Turtle
         //GameObject.Destroy(myLine, duration);
     }
 
-    //combines the line meshes into a final mesh
+    //combines the step meshes into a final mesh
     public void CreateMesh()
     {
-        //combine meshes
         var finalMesh = new Mesh();
 
         var instances = _meshes.Select(m => new CombineInstance() { mesh = m, transform = Matrix4x4.identity });
@@ -324,7 +323,7 @@ class Turtle
         _finalMesh = finalMesh;
     }
 
-    //draws a mesh up to the number of steps
+    //creates a mesh up to the number of steps, used for animation
     public void PartialMesh(int steps)
     {
         var partialMesh = new Mesh();
@@ -336,6 +335,4 @@ class Turtle
         _partialMesh = partialMesh;
         _partialInstructions = string.Join("", _instructions.Take(steps).ToArray());
     }
-
-    
 }

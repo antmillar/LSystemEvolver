@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class LSystem
 {
@@ -9,6 +9,7 @@ public class LSystem
     private string _generatedString;
     private int _numIterations;
     public RuleSet _ruleSet;
+
     public LSystem(string axiom, int numIterations, RuleSet rs)
     {
         _axiom = axiom;
@@ -16,19 +17,11 @@ public class LSystem
         _ruleSet = rs;
     }
 
-    //maps the final generation with terminals
-    private void ApplyTerminals()
-    {
 
-        foreach (string s in _ruleSet._terminals.Keys)
-        {
-            _generatedString = _generatedString.Replace(s, _ruleSet._terminals[s]);
-        }
-    }
 
+    //generates the final string from the ruleset and axiom
     public string Generate()
     {
-
         if (_ruleSet._valid && _ruleSet._rules.Count != 0)
         {
             _generatedString = ReplaceRecursive(_axiom, _numIterations);
@@ -42,19 +35,7 @@ public class LSystem
         }
     }
 
-    public void Information()
-    {
-
-        Debug.Log(string.Format("Category : {0}", _ruleSet._category));
-        Debug.Log(string.Format("Axiom : {0}", _axiom));
-        foreach (KeyValuePair<string, string> rule in _ruleSet._rules)
-        {
-            Debug.Log(string.Format("Rule : {0} > {1}", rule.Key, rule.Value));
-        }
-        Debug.Log(string.Format("Output : {0}", _generatedString));
-
-    }
-
+    //applies rules recursively
     private string ReplaceRecursive(string prevString, int numIterations)
     {
 
@@ -77,7 +58,30 @@ public class LSystem
         numIterations--;
         return ReplaceRecursive(nextString, numIterations);
     }
+
+    //prints the full l system setup to log
+    public void Information()
+    {
+        Debug.Log(string.Format("Category : {0}", _ruleSet._category));
+        Debug.Log(string.Format("Axiom : {0}", _axiom));
+        foreach (KeyValuePair<string, string> rule in _ruleSet._rules)
+        {
+            Debug.Log(string.Format("Rule : {0} > {1}", rule.Key, rule.Value));
+        }
+        Debug.Log(string.Format("Output : {0}", _generatedString));
+    }
+
+    //maps the final generation with 'terminals' if needed
+    //these are what dummy character map to in the final iteration, e.g G -> F, not used currently
+    private void ApplyTerminals()
+    {
+        foreach (string s in _ruleSet._terminals.Keys)
+        {
+            _generatedString = _generatedString.Replace(s, _ruleSet._terminals[s]);
+        }
+    }
 }
+
 
 //rule set class for use in LSystem
 public class RuleSet
@@ -90,8 +94,9 @@ public class RuleSet
     public string _category;
     public int _ruleCount;
 
-    [JsonConstructor]
-    public RuleSet(string category, string axiom, string alphabet, float angle){
+    [JsonConstructor] //identifies to which constructor to use in json deserialisation
+    public RuleSet(string category, string axiom, string alphabet, float angle)
+    {
 
         _ruleCount = 0;
         _category = category;
@@ -116,42 +121,55 @@ public class RuleSet
         _valid = true;
     }
 
-    public void AddRule(string input, string output){
+    public void AddRule(string input, string output)
+    {
 
-        if(_alphabet.Contains(input)){
+        if (_alphabet.Contains(input))
+        {
 
             _rules.Add(input, output);
             _ruleCount++;
-        } else {
-            
+        }
+        else
+        {
+
             Debug.Log("ERROR : " + input + " not in symbol set, rule not added to rule set");
             _valid = false;
         }
     }
 
-    //defines what each symbol maps to in final generation. Every non "F" symbol requires a terminal, otherwise the turtle no comprende
-    public void AddTerminal(string input, string output){
+    //defines what each symbol maps to in final generation, if using dummies
+    public void AddTerminal(string input, string output)
+    {
 
-        if(_alphabet.Contains(input)){
+        if (_alphabet.Contains(input))
+        {
 
             _terminals.Add(input, output);
 
-        } else {
-            
+        }
+        else
+        {
+
             Debug.Log("ERROR : " + input + " not in symbol set, rule not added to rule set");
             _valid = false;
         }
     }
 
-    public void Validate(){
+    //confirms whether the ruleset is valid, this still needs work to catch edge cases.
+    //should replace debug logs with proper errors catching at some point
+    public void Validate()
+    {
 
         string terminalKeys = _terminals.Keys.ToString();
         string turtleString = "Ff-+|!£\"GHI^&$"; //current valid turtle symbols, should really pass this in elsewhere
         char[] turtleChars = turtleString.ToCharArray();
 
-        foreach (char symbol in _alphabet){
-            if(!turtleChars.Contains(symbol) && !_terminals.ContainsKey(symbol.ToString())) {
-                
+        foreach (char symbol in _alphabet)
+        {
+            if (!turtleChars.Contains(symbol) && !_terminals.ContainsKey(symbol.ToString()))
+            {
+
                 Debug.Log("ERROR : Missing Terminal value for the symbol " + symbol);
                 _valid = false;
             }

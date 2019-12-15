@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
 using System.Linq;
-using System.Collections;
+using UnityEngine;
 public class Model
 {
     public RuleSet[] _rulesets;
@@ -21,9 +21,9 @@ public class Model
         _rulesets = new RuleSet[_childCount];
         meshes = new Mesh[_childCount];
 
-        InitialiseDB.Initialise();
+        //InitialiseDB.Initialise();
         var ldb = new LSystemDB();
-        
+
         var systemsJSON = ldb.ReadFromFile();
 
         _sampleRules = new string[_childCount][];
@@ -95,7 +95,7 @@ public class Model
         Turtle turtle = new Turtle(ruleSet._angle);
         turtle.Decode(lSystemOutput);
 
-        for(int i = 0; i < turtle._meshes.Count; i++)
+        for (int i = 0; i < turtle._meshes.Count; i++)
         {
             turtle.PartialMesh(i);
 
@@ -131,7 +131,8 @@ public class Model
 
         for (int i = 0; i < _childCount; i++)
         {
-            var temp = gaAxioms.Population._genomes[i].genome[0];
+            var temp = gaAxioms.Population._genomes[i]._genome[0];
+
             string evolvedAxiom = gaAxioms.Encoder.Decode(temp);
             //Debug.Log(evolvedAxiom);
 
@@ -142,9 +143,9 @@ public class Model
             //issue here because the rules aren't attached to their rules the order matters when passing/reversing
             //so all systems currently need to have fgh defined and in order
 
-            for (int j = 0; j < gaRules.Population._genomes[i].genome.Length; j++)
+            for (int j = 0; j < gaRules.Population._genomes[i]._genome.Length; j++)
             {
-                var tempGenome = gaRules.Population._genomes[i].genome[j];
+                var tempGenome = gaRules.Population._genomes[i]._genome[j];
                 string specimen = gaRules.Encoder.Decode(tempGenome);
                 rsTemp.AddRule(ruleNames[j].ToString(), specimen);
             }

@@ -16,7 +16,7 @@ public class Encoder : IEncoder<string>
     public string _symbols;
     public Encoder(string symbols)
     {
-       _symbols = symbols;
+        _symbols = symbols;
     }
     public string Encode(string rule)
     {
@@ -132,12 +132,12 @@ public class Fitness
     private int FitnessFunction(Genome g)
     {
         int fitness = 0;
-        for (int j = 0; j < g.genome.Length; j++)
+        for (int j = 0; j < g._genome.Length; j++)
         {
             //calculates the difference in characters between the candidate genome and target
-            for (int i = 0; i < g.genome[j].Length; i++)
+            for (int i = 0; i < g._genome[j].Length; i++)
             {
-                if (g.genome[j][i] == _target[i])
+                if (g._genome[j][i] == _target[i])
                 {
                     fitness++;
                 }
@@ -153,7 +153,7 @@ public class Fitness
         Array.Reverse(p._fitnesses);
         Array.Reverse(p._genomes);
 
-        p._bestGenome = p._genomes[0].genome;
+        p._bestGenome = p._genomes[0]._genome;
         p._bestFitness = p._fitnesses[0];
 
         string top3fit = String.Format("{0} Population : Generation {1} : Top 3 Fitnesses {2}, {3}, {4}", p._name, p._generation, p._fitnesses[0].ToString(), p._fitnesses[1].ToString(), p._fitnesses[2].ToString());
@@ -295,7 +295,7 @@ public class Selection
 public class CrossOver
 {
     public string _crossoverType;
-    private int _maxGeneGrowth = 10; 
+    private int _maxGeneGrowth = 10;
 
     public CrossOver(string crossoverType)
     {
@@ -326,12 +326,12 @@ public class CrossOver
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength, int seed)
     {
         //randomly pick a gene from each genome to cross
-        int geneChoice1 = UnityEngine.Random.Range(0, p1.genome.Length);
-        int geneChoice2 = UnityEngine.Random.Range(0, p2.genome.Length);
+        int geneChoice1 = UnityEngine.Random.Range(0, p1._genome.Length);
+        int geneChoice2 = UnityEngine.Random.Range(0, p2._genome.Length);
 
         //get randomly selected genes from each genome
-        var p1Gene = p1.genome[geneChoice1];
-        var p2Gene = p2.genome[geneChoice2];
+        var p1Gene = p1._genome[geneChoice1];
+        var p2Gene = p2._genome[geneChoice2];
 
         System.Random random = new System.Random(seed);
         int xPt1 = random.Next(0, p1Gene.Length); //1st crossover pt on first genome
@@ -348,14 +348,14 @@ public class CrossOver
         }
         else
         {
-            yPt1 = random.Next(Math.Max(Math.Min(xPt1 - growthCap, p2Gene.Length),0), p2Gene.Length);
+            yPt1 = random.Next(Math.Max(Math.Min(xPt1 - growthCap, p2Gene.Length), 0), p2Gene.Length);
         }
-                
+
         //if genomes all have the same length then cross at same point to maintain this.
         if (!variableGenomeLength)
-        { 
+        {
             yPt1 = xPt1;
-        } 
+        }
         //if genomes can be different lengths, need to limit the crossing point to the shortest genome
         //else 
         //{ 
@@ -373,19 +373,19 @@ public class CrossOver
 
                 crossedString1 = p1Gene.Substring(0, xPt1) + p2Gene.Substring(yPt1);
 
-                p1.setGene(geneChoice1, crossedString1);
+                p1.SetGene(geneChoice1, crossedString1);
 
                 crossedString2 = p2Gene.Substring(0, yPt1) + p1Gene.Substring(xPt1);
 
-                p2.setGene(geneChoice2, crossedString2);
+                p2.SetGene(geneChoice2, crossedString2);
 
                 break;
 
             //cuts the genotype at two points and swaps genes
             case "TwoPt":
 
-                int xPt2 = UnityEngine.Random.Range(0, p1.genome.Length); //2nd crossover pt on first genome
-                int yPt2 = UnityEngine.Random.Range(0, p2.genome.Length); //2nd crossover pt on first genome
+                int xPt2 = UnityEngine.Random.Range(0, p1._genome.Length); //2nd crossover pt on first genome
+                int yPt2 = UnityEngine.Random.Range(0, p2._genome.Length); //2nd crossover pt on first genome
 
                 if (!variableGenomeLength) { yPt2 = xPt2; } //if all genomes the same length, use the same 2nd crossover pt
                 if (variableGenomeLength) { yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1; }
@@ -399,8 +399,8 @@ public class CrossOver
                 crossedString1 = p1Gene.Substring(0, xmin) + p2Gene.Substring(ymin, ymax - ymin) + p1Gene.Substring(xmax);
                 crossedString2 = p2Gene.Substring(0, ymin) + p1Gene.Substring(xmin, xmax - xmin) + p2Gene.Substring(ymax);
 
-                p1.setGene(geneChoice1, crossedString1);
-                p2.setGene(geneChoice2, crossedString2);
+                p1.SetGene(geneChoice1, crossedString1);
+                p2.SetGene(geneChoice2, crossedString2);
 
                 break;
 
@@ -424,8 +424,8 @@ public class CrossOver
                     }
                 }
 
-                p1.setGene(geneChoice1, new string(chars1));
-                p2.setGene(geneChoice2, new string(chars2));
+                p1.SetGene(geneChoice1, new string(chars1));
+                p2.SetGene(geneChoice2, new string(chars2));
 
                 break;
         }
@@ -456,45 +456,45 @@ public class Mutation
     //takes genome as input and mutates it
     public void Mutate(Genome p1, System.Random seed)
     {
-        int geneChoice1 = UnityEngine.Random.Range(0, p1.genome.Length); //choose which gene to mutate
-        char[] bases = new char[p1.genome[geneChoice1].Length];
+        int geneChoice1 = UnityEngine.Random.Range(0, p1._genome.Length); //choose which gene to mutate
+        char[] bases = new char[p1._genome[geneChoice1].Length];
         switch (_mutationType)
         {
             //if chosen, gene is mutated to random choice in range
             case "randomChoice":
 
-                for (int i = 0; i < p1.genome[geneChoice1].Length; i++)
+                for (int i = 0; i < p1._genome[geneChoice1].Length; i++)
                 {
                     System.Random r = new System.Random(seed.Next());
-                    bases[i] = p1.genome[geneChoice1][i];
+                    bases[i] = p1._genome[geneChoice1][i];
 
                     //mutates based on the mutationRate
                     double test = r.NextDouble();
                     if (test < _mutationRate)
                     {
-                        int randomChoice = r.Next(97, 97 + p1.baseTypeCount);
+                        int randomChoice = r.Next(97, 97 + p1._baseTypeCount);
                         bases[i] = (char)(randomChoice); //if mutate overwrite it
                     }
                 }
-                p1.setGene(geneChoice1, new string(bases));
+                p1.SetGene(geneChoice1, new string(bases));
                 break;
 
             //if chosen, gene is tweaked up or down one index in the range
             case "stepUp":
 
-                for (int i = 0; i < p1.genome[geneChoice1].Length; i++)
+                for (int i = 0; i < p1._genome[geneChoice1].Length; i++)
                 {
-                    bases[i] = p1.genome[geneChoice1][i];
+                    bases[i] = p1._genome[geneChoice1][i];
 
                     //mutates based on the mutationRate
                     if (UnityEngine.Random.Range(0f, 1f) < _mutationRate)
                     {
-                        int intLetter = Convert.ToInt32(p1.genome[geneChoice1][i]);
-                        intLetter = ((intLetter + 1) - 97) % (p1.baseTypeCount - 97);
+                        int intLetter = Convert.ToInt32(p1._genome[geneChoice1][i]);
+                        intLetter = ((intLetter + 1) - 97) % (p1._baseTypeCount - 97);
                         bases[i] = (char)(intLetter + 97);
                     }
                 }
-                p1.setGene(geneChoice1, new string(bases));
+                p1.SetGene(geneChoice1, new string(bases));
                 break;
 
             //if chosen, gene is tweaked by an amount determined by gaussian mean = 0 variance = sigma
@@ -505,17 +505,17 @@ public class Mutation
 
 
     //takes genome as input and mutates it
-    public void MutateGrow(Genome p1, System.Random seed)
-    {
-        System.Random r = new System.Random(seed.Next());
-        double test = r.NextDouble();
-        if (test < _mutationRate)
-        {
-            p1.AddGene();
-            Debug.Log("New gene spawned on genome!");
-            Debug.Log(p1.genome[p1.genome.Length - 1]);
-        }
-    }
+    //public void MutateGrow(Genome p1, System.Random seed)
+    //{
+    //    System.Random r = new System.Random(seed.Next());
+    //    double test = r.NextDouble();
+    //    if (test < _mutationRate)
+    //    {
+    //        p1.AddGene();
+    //        Debug.Log("New gene spawned on genome!");
+    //        Debug.Log(p1._genome[p1._genome.Length - 1]);
+    //    }
+    //}
 
 }
 
@@ -545,7 +545,7 @@ public class GeneticAlgo
         _crossover = crossover;
         _mutation = mutation;
 
-        
+
     }
 
     public void NextGeneration(string userSelection = "")

@@ -774,12 +774,12 @@ GameObject:
   - component: {fileID: 760808814}
   - component: {fileID: 760808813}
   m_Layer: 5
-  m_Name: Canvas2
+  m_Name: CanvasPartial
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &760808813
 MonoBehaviour:
   m_ObjectHideFlags: 0
