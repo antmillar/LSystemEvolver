@@ -257,7 +257,7 @@ class Turtle
 
         mesh.RecalculateNormals();
 
-        _meshes.Add(mesh); //add box mesh to list of all the meshes create so far by turtle
+        _meshes.Add(mesh); //add box mesh to list of all the _meshes create so far by turtle
     }
 
     //draws a line as a mesh, not used in final project as boxmesh is more general
@@ -312,7 +312,7 @@ class Turtle
         //GameObject.Destroy(myLine, duration);
     }
 
-    //combines the step meshes into a final mesh
+    //combines the step _meshes into a final mesh
     public void CreateMesh()
     {
         var finalMesh = new Mesh();

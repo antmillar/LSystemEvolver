@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
+
 public class Model
 {
     public RuleSet[] _rulesets;
-    public Mesh[] meshes;
-    public GeneticAlgo gaRules, gaAxioms;
+    public Mesh[] _meshes;
+    public GeneticAlgo _gaRules, _gaAxioms;
     int _childCount, _iterationCount;
     Encoder _encode;
     string[][] _sampleRules, _sampleAxioms;
@@ -13,17 +14,15 @@ public class Model
 
     public Model(int childCount, int iterationCount, float mutationRate)
     {
-
         _mutationRate = mutationRate;
         _childCount = childCount;
         _iterationCount = iterationCount;
 
         _rulesets = new RuleSet[_childCount];
-        meshes = new Mesh[_childCount];
+        _meshes = new Mesh[_childCount];
 
-        //InitialiseDB.Initialise();
+        //InitialiseDB.Initialise(); //can be used to populate a new set of initial L systems in the DB (specified in LSystemDB.cs)
         var ldb = new LSystemDB();
-
         var systemsJSON = ldb.ReadFromFile();
 
         _sampleRules = new string[_childCount][];
@@ -31,41 +30,63 @@ public class Model
 
         _encode = new Encoder("Ff-+|!£\"GHI^&$");
 
-        //get the L systems from database and assign them to a gameobject which is created here
+        //get the L systems from database and assign them to as meshes to GOs
         for (int i = 0; i < _childCount; i++)
         {
-            //get the rule sets for samples from DB
             RuleSet tempRS = new RuleSet(systemsJSON[(i % systemsJSON.Count).ToString()]);
             _rulesets[i] = tempRS;
-            meshes[i] = MeshFromRuleset(i);
+            _meshes[i] = MeshFromRuleset(i);
             EncodeSamples(i);
         }
 
-        gaRules = CreateGA(_sampleRules);
-        gaAxioms = CreateGA(_sampleAxioms);
+        //one GA for the rules and axioms so they don't get jumbled up
+        _gaRules = CreateGA(_sampleRules);
+        _gaAxioms = CreateGA(_sampleAxioms);
     }
 
-    //encodes the initial sample l systems to genomes
+    //encodes the initial sample L systems to genomes
     public void EncodeSamples(int idx)
     {
-        //the ordering here matters due to sample rules
+        //the ordering here matters currently due to sample rules
         var keyArray = _rulesets[idx]._rules.Keys.ToArray();
-        string ruleNames = string.Join("", keyArray);
-
         _sampleRules[idx] = new string[keyArray.Length];
 
         for (int i = 0; i < keyArray.Length; i++)
         {
-            string rule = _rulesets[idx]._rules[ruleNames[i].ToString()];
+            string rule = _rulesets[idx]._rules[keyArray[i].ToString()];
             _sampleRules[idx][i] = _encode.Encode(rule);
         }
 
         //encoding the Axioms
-
-        _sampleAxioms[idx] = new string[1];
-
         string axiom = _rulesets[idx]._axiom;
+        _sampleAxioms[idx] = new string[1];
         _sampleAxioms[idx][0] = _encode.Encode(axiom);
+    }
+
+    //converts from genomes to _rulesets
+    public void DecodeGenomes()
+    {
+        for (int i = 0; i < _childCount; i++)
+        {
+            var temp = _gaAxioms.Population._genomes[i]._genome[0];
+
+            string evolvedAxiom = _gaAxioms.Encoder.Decode(temp);
+
+            //issue here because the rule keys aren't attached to their rules so the order matters when passing/reversing
+            //so all systems currently need to have fghi defined in that order
+            string ruleNames = "FGHI";
+            RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, ruleNames, 90f);
+
+            for (int j = 0; j < _gaRules.Population._genomes[i]._genome.Length; j++)
+            {
+                var tempGenome = _gaRules.Population._genomes[i]._genome[j];
+                string specimen = _gaRules.Encoder.Decode(tempGenome);
+                rsTemp.AddRule(ruleNames[j].ToString(), specimen);
+            }
+
+            rsTemp.Validate();
+            _rulesets[i] = rsTemp;
+        }
     }
 
     //generates a mesh from a l system ruleset
@@ -85,6 +106,7 @@ public class Model
         return mesh;
     }
 
+    //animates the step by step drawing of the mesh
     public IEnumerator AnimateMesh(int objNum, View view)
     {
         var ruleSet = _rulesets[objNum];
@@ -125,48 +147,21 @@ public class Model
         return new GeneticAlgo(encoder, fitness, population, selection, crossover, mutation);
     }
 
-    //converts from genomes to _rulesets
-    public void DecodeGenomes()
-    {
-
-        for (int i = 0; i < _childCount; i++)
-        {
-            var temp = gaAxioms.Population._genomes[i]._genome[0];
-
-            string evolvedAxiom = gaAxioms.Encoder.Decode(temp);
-            //Debug.Log(evolvedAxiom);
-
-            string ruleNames = "FGHI";
-            RuleSet rsTemp = new RuleSet("Fractal", evolvedAxiom, ruleNames, 90f);
-            //rsTemp.AddTerminal("G", "F");
-            //rsTemp.AddTerminal("H", "F");
-            //issue here because the rules aren't attached to their rules the order matters when passing/reversing
-            //so all systems currently need to have fgh defined and in order
-
-            for (int j = 0; j < gaRules.Population._genomes[i]._genome.Length; j++)
-            {
-                var tempGenome = gaRules.Population._genomes[i]._genome[j];
-                string specimen = gaRules.Encoder.Decode(tempGenome);
-                rsTemp.AddRule(ruleNames[j].ToString(), specimen);
-            }
-
-            rsTemp.Validate();
-            _rulesets[i] = rsTemp;
-        }
-    }
-
-    //runs the next generation of the algo and updates the meshes
+    //runs the next generation of the GA and updates the meshes
     public void NextGeneration(string inputSelection)
     {
         //separate GAs for the axiom and rules currently, to maintain separation
-        gaRules.NextGeneration(inputSelection);
-        gaAxioms.NextGeneration(inputSelection);
+        _gaRules.NextGeneration(inputSelection);
+        _gaAxioms.NextGeneration(inputSelection);
         DecodeGenomes();
 
         for (int i = 0; i < _childCount; i++)
         {
-            int j = i;
-            meshes[i] = MeshFromRuleset(i);
+            _meshes[i] = MeshFromRuleset(i);
         }
     }
 }
+
+
+//Notes for improvements
+//Encode the L Systems in a different way to keep axiom and rules tied together, and prevent the need to adhere to rules ordering

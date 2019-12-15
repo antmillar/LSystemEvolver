@@ -4,12 +4,13 @@ using System.Linq;
 using UnityEngine;
 
 //this interface must be implemented to convert from genome strings to phenotypes
-//T is the type that the phenotype is represented by
+//would like to flesh this out more, just an exercise really for now..
 interface IEncoder<T>
 {
-    string Encode(T obj);
+    T Encode(T obj);
     T Decode(string genomeString);
 }
+
 //converts from a LSystem to string based genome
 public class Encoder : IEncoder<string>
 {
@@ -18,6 +19,8 @@ public class Encoder : IEncoder<string>
     {
         _symbols = symbols;
     }
+
+    //converts string to letter from a to ... (97 is a in ASCII)
     public string Encode(string rule)
     {
         char[] chars = new char[rule.Length];
@@ -32,6 +35,7 @@ public class Encoder : IEncoder<string>
         return output;
     }
 
+    //reverses Encode
     public string Decode(string genomeString)
     {
         string rule = "";
@@ -46,7 +50,7 @@ public class Encoder : IEncoder<string>
     }
 }
 
-
+//defines the population of genomes
 public class Population
 {
     public string _name, _symbols;
@@ -61,6 +65,9 @@ public class Population
 
     public bool _variableGenomeLength;
 
+    //creates a population either based on a sample or a target string
+    //target string is a legacy from evolving words, constructor could do with splitting out probably at some point
+    //size must be even currently which could be resolved/caught
     public Population(int size, string symbols, string target = "", string[][] samplePopulation = null, bool variableGenomeLength = false)
     {
         _size = size;
@@ -71,6 +78,10 @@ public class Population
         {
             SeedFromSamples(samplePopulation);
         }
+        else if (target == "")
+        {
+            throw new ArgumentOutOfRangeException("Must have non empty target string or sample population");
+        } 
         else
         {
             SeedRandom(target);
@@ -79,7 +90,7 @@ public class Population
         _variableGenomeLength = variableGenomeLength;
     }
 
-    //creates first generation //NEED TO MAKE THIS WORK FOR STRING ARRAYS and NEED TO CHECK FOR TARGETSTRING
+    //creates a random first generation
     public void SeedRandom(string target)
     {
         System.Random randomInt = new System.Random(); //for random seed for the genome
@@ -91,6 +102,7 @@ public class Population
         _generation++;
     }
 
+    //populates the population using a sample of already encoded genomes
     public void SeedFromSamples(string[][] samplePopulation)
     {
         for (int i = 0; i < _size; i++)
@@ -101,7 +113,8 @@ public class Population
     }
 }
 
-
+//class that determines fitness for a population
+//this class isn't used in the L system evolution, it was used in word/image evolution
 public class Fitness
 {
     public string _target;
@@ -128,7 +141,7 @@ public class Fitness
         }
     }
 
-    //calculates an individual genomes fitness
+    //calculates an individual genomes fitness based on whether the base matches exactly
     private int FitnessFunction(Genome g)
     {
         int fitness = 0;
@@ -156,22 +169,23 @@ public class Fitness
         p._bestGenome = p._genomes[0]._genome;
         p._bestFitness = p._fitnesses[0];
 
-        string top3fit = String.Format("{0} Population : Generation {1} : Top 3 Fitnesses {2}, {3}, {4}", p._name, p._generation, p._fitnesses[0].ToString(), p._fitnesses[1].ToString(), p._fitnesses[2].ToString());
-        string top5pheno = String.Format("{0} Population : Generation  {1} : Top 5 genomes ", p._name, p._generation);
+        //string top3fit = String.Format("{0} Population : Generation {1} : Top 3 Fitnesses {2}, {3}, {4}", p._name, p._generation, p._fitnesses[0].ToString(), p._fitnesses[1].ToString(), p._fitnesses[2].ToString());
+        //string top5pheno = String.Format("{0} Population : Generation  {1} : Top 5 genomes ", p._name, p._generation);
 
-        for (int i = 0; i < 5; i++)
-        {
-            top5pheno += " " + i + " - " + p._genomes[i].ToString();
-        }
+        //for (int i = 0; i < 5; i++)
+        //{
+        //    top5pheno += " " + i + " - " + p._genomes[i].ToString();
+        //}
 
-        //print out top candidates
-        Debug.Log(top3fit);
-        Debug.Log(top5pheno);
+        ////print out top candidates
+        //Debug.Log(top3fit);
+        //Debug.Log(top5pheno);
 
         return p;
     }
 }
 
+//class that controls selection of parents from population
 public class Selection
 {
     public string _selectionType;
@@ -181,6 +195,8 @@ public class Selection
         _selectionType = selectionType;
     }
 
+    //creates cumulative density function for use in some of the selection types
+    //again not used in the L system evolution as it's user choice based
     public List<Genome> Cdf(Genome[] genomes, int[] fitnesses)
     {
         List<Genome> cdf = new List<Genome>();
@@ -195,11 +211,9 @@ public class Selection
         return cdf;
     }
 
-    //returns an array with frequency of the top 3 fitnesses weighted by occurence i.e cdf
+    //selects from the population based on selection type specified in constructor
     public List<Genome> Select(Population p, string userSelection = "")
     {
-        //local variables
-
         var selectionPool = new List<Genome>();
         var size = p._size;
         var genomes = p._genomes;
@@ -213,25 +227,26 @@ public class Selection
 
                 string[] indices = userSelection.Split(' ');
                 int selectionCount = indices.Length;
+
                 //if user doesn't choose any, just use the whole population again as parents
-                if (selectionCount == 0)
+                if (userSelection == "")
                 {
                     selectionPool = p._genomes.Select(x => x).ToList();
+                    Debug.Log("Warning : No user choice specified, whole generation used as parents");
                 }
                 else
                 {
                     for (int i = 0; i < size; i++)
                     {
                         string mod = indices[i % selectionCount];
-                        //Debug.Log("User chose Candidate " + mod + " Genome : " + p._genomes[int.Parse(mod)].ToString());
-                        //adds the selected candidates to the pool in roughly equal proportion
-                        //slight issue here with low populations/odd numbers of selections which biases the selectionPool a bit
                         selectionPool.Add(p._genomes[int.Parse(mod)]);
                     }
                 }
                 break;
 
-            //choose sample of size n from the GA, and places the highest fitness one in the selection pool
+            //tournament selection of size 2, preserves rank so preferable to fitness proportional apparently (see metaheuristics book)
+            //I suspect this is only the case at large scale and if you tend towards high fitnesses in all candidates
+            //should make 2 a variable
             case "tournament":
 
                 for (int i = 0; i < size; i++)
@@ -258,6 +273,7 @@ public class Selection
                 break;
 
             //step through the cdf in steps of cdf.count / size, and picks random item in each step range
+            //can be more representative than fitnessProportional
             case "stochasticUniversalSampling":
 
                 cdf = Cdf(genomes, fitnesses);
@@ -270,6 +286,8 @@ public class Selection
                 break;
 
             //takes the top 5 by fitness and then fills the selection pool with size /5 of those
+            //by far the best for the tests I've run so far
+            //should make 5 a variable
             case "truncated":
 
                 for (int i = 0; i < 5; i++)
@@ -292,10 +310,11 @@ public class Selection
     }
 }
 
+//class that exchanges gene segments between parents selected in Selection class
 public class CrossOver
 {
     public string _crossoverType;
-    private int _maxGeneGrowth = 10;
+    private int _maxGeneGrowth = 10; //constrains the amount a gene can get longer
 
     public CrossOver(string crossoverType)
     {
@@ -304,25 +323,23 @@ public class CrossOver
 
     public void Apply(Population p, List<Genome> selectionPool)
     {
-        //population has to be even number currently......
-        //because the population size is driving the selectionPool size
+        //population has to be even number currently, because the population size is driving the selectionPool size
         p._genomes = new Genome[p._size];
         Stack<Genome> selectionStack = new Stack<Genome>(selectionPool);
 
         //loop over pairs, as need two parents per two children
         for (int i = 0; i < p._size; i += 2)
         {
-            //add the two new children to the new genomes for this generation (have been shuffled previously)
-
+            //add the two new children to the new genomes for this generation (have been shuffled previously in selection)
             p._genomes[i] = new Genome(selectionStack.Pop());
             p._genomes[i + 1] = new Genome(selectionStack.Pop());
-            //evolve them
+
+            //cross them
             Cross(p._genomes[i], p._genomes[i + 1], p._variableGenomeLength, i);
-            //maybe could write test to check if variable genome lengths
         }
     }
 
-    //takes two genomes as input and mutates them
+    //takes two genomes as input and crosses them
     public void Cross(Genome p1, Genome p2, bool variableGenomeLength, int seed)
     {
         //randomly pick a gene from each genome to cross
@@ -337,8 +354,7 @@ public class CrossOver
         int xPt1 = random.Next(0, p1Gene.Length); //1st crossover pt on first genome
         int yPt1 = random.Next(0, p2Gene.Length); //1st crossover pt on second genome
 
-        //try to restrict the max dist between xPt1 and yPt1, restricts the gene growth so the fractals don't blow out!
-        //essentially a two sided clamp
+        //essentially a two sided clamp, restricting the max dist between xPt1 and yPt1, restricts the gene growth so the fractals don't blow out!
         //also restricts the values to  be within the length of the genome
         int growthCap = Math.Max(_maxGeneGrowth, Math.Abs(yPt1 - xPt1));
 
@@ -351,21 +367,15 @@ public class CrossOver
             yPt1 = random.Next(Math.Max(Math.Min(xPt1 - growthCap, p2Gene.Length), 0), p2Gene.Length);
         }
 
-        //if genomes all have the same length then cross at same point to maintain this.
+        //if genomes all have the same length then cross at same point to maintain lengths
         if (!variableGenomeLength)
         {
             yPt1 = xPt1;
         }
-        //if genomes can be different lengths, need to limit the crossing point to the shortest genome
-        //else 
-        //{ 
-        //    yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1;
-        //}
-
-        //Debug.Log("first length " + p1Gene.Length + " " + p2Gene.Length);
-        //Debug.Log("first cross pt " + xPt1.ToString() + " " + yPt1.ToString());
+  
         string crossedString1, crossedString2;
 
+        //determines which crossover type to apply
         switch (_crossoverType)
         {
             //cuts the genotype at one point and swaps genes
@@ -382,10 +392,11 @@ public class CrossOver
                 break;
 
             //cuts the genotype at two points and swaps genes
+            //not tested for L system evolution, worked in text/image
             case "TwoPt":
 
-                int xPt2 = UnityEngine.Random.Range(0, p1._genome.Length); //2nd crossover pt on first genome
-                int yPt2 = UnityEngine.Random.Range(0, p2._genome.Length); //2nd crossover pt on first genome
+                int xPt2 = UnityEngine.Random.Range(0, p1Gene.Length); //2nd crossover pt on first genome
+                int yPt2 = UnityEngine.Random.Range(0, p2Gene.Length); //2nd crossover pt on second genome
 
                 if (!variableGenomeLength) { yPt2 = xPt2; } //if all genomes the same length, use the same 2nd crossover pt
                 if (variableGenomeLength) { yPt1 = Math.Min(xPt1, yPt1); xPt1 = yPt1; }
@@ -432,6 +443,7 @@ public class CrossOver
     }
 }
 
+//class that mutates genes probabilistically
 public class Mutation
 {
     public string _mutationType;
@@ -454,13 +466,14 @@ public class Mutation
     }
 
     //takes genome as input and mutates it
+    //should implement global random
     public void Mutate(Genome p1, System.Random seed)
     {
         int geneChoice1 = UnityEngine.Random.Range(0, p1._genome.Length); //choose which gene to mutate
         char[] bases = new char[p1._genome[geneChoice1].Length];
         switch (_mutationType)
         {
-            //if chosen, gene is mutated to random choice in range
+            //if chosen, gene is mutated to random choice in range of valid chars
             case "randomChoice":
 
                 for (int i = 0; i < p1._genome[geneChoice1].Length; i++)
@@ -479,7 +492,7 @@ public class Mutation
                 p1.SetGene(geneChoice1, new string(bases));
                 break;
 
-            //if chosen, gene is tweaked up or down one index in the range
+            //if chosen, gene is tweaked up one index in the range
             case "stepUp":
 
                 for (int i = 0; i < p1._genome[geneChoice1].Length; i++)
@@ -503,7 +516,6 @@ public class Mutation
         }
     }
 
-
     //takes genome as input and mutates it
     //public void MutateGrow(Genome p1, System.Random seed)
     //{
@@ -516,9 +528,9 @@ public class Mutation
     //        Debug.Log(p1._genome[p1._genome.Length - 1]);
     //    }
     //}
-
 }
 
+//class than combines all the modules into the final GA
 public class GeneticAlgo
 {
     //private fields
@@ -544,26 +556,11 @@ public class GeneticAlgo
         _selection = selection;
         _crossover = crossover;
         _mutation = mutation;
-
-
     }
 
     public void NextGeneration(string userSelection = "")
     {
-        //should i save each generation in the population object
-
-        //target is blank (if selection type is user, don't need a target eh?
-        //make genome more generic, and specifiable
-
-        //currently the target is defining the length of the seeded genomes. That's not ideal.
-
-        //I should specify the seeding information in the encoder....
-
-        //how do I deal with variable length genomes???? This matters in crossover, fitness, and seeding the population
-        //for the next step only need to focus on crossover and seeding.
-
-        //need to be able to seed a population from a list of values
-
+        //only apply the fitness class if selection type is fitness based
         if (!(_selection._selectionType == "god mode"))
         {
             _fitness.Apply(Population);
@@ -574,7 +571,7 @@ public class GeneticAlgo
         _mutation.Apply(Population);
         Population._generation++;
 
-        Debug.Log(this.ToString());
+        Debug.Log(this);
     }
 
     public override string ToString()
@@ -587,3 +584,18 @@ public class GeneticAlgo
         return output;
     }
 }
+
+
+/* Notes for further improvements
+ * 
+ * Make the Population constructor clearer
+ * Currently the target is defining the length of the random seeded genomes. That's not ideal.
+ * Save generation history in the population
+ * Make the fitness class more modular so easy to drop in new fitness functions
+ * Crossover currently requires an even number in population due to pairing
+ * Could replace all random seeds with a global static
+ * Implement Gaussian Convolution in the Mutation Class so then can do CMA Evolutionary Systems etc
+ * Implementation of the god mode as a selection type could be more elegant
+ * 
+ */
+

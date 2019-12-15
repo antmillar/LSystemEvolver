@@ -10,7 +10,7 @@ public class View
     Text[] _captions;
     Material _material;
     RectTransform _canvasInfo;
-    InputField inputSelection;
+    InputField _inputSelection;
     Camera _mainCam, _activeCam;
     RenderTexture _activeRenderTexture;
     GameObject _activeObj;
@@ -26,7 +26,7 @@ public class View
         _material = material;
 
         //retrieving objects from scene
-        inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
+        _inputSelection = GameObject.Find("InputSelection").GetComponent<InputField>();
         _mainCam = GameObject.Find("Main Camera").GetComponent<Camera>();
         _rawImages = GameObject.Find("Canvas").GetComponentsInChildren<RawImage>();
         _canvasInfo = GameObject.Find("CanvasInfo").GetComponent<RectTransform>();
@@ -58,20 +58,16 @@ public class View
         }
     }
 
-    //add object for each mesh
+    //add object and object to rotate around, to assign a mesh to later
     public void AddObject(int idx)
     {
         GameObject rotateObj = new GameObject("rObj" + idx);
         GameObject newObj = new GameObject("obj" + idx);
-        //newObj.transform.position = new Vector3(250 * (idx + 1), 0, 1);
 
         rotateObj.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
-
-
         rotateObj.transform.localPosition = new Vector3(250 * (idx + 1), 0, 2); //z offset 2 from camera
 
         newObj.transform.parent = rotateObj.transform;
-
         newObj.transform.localPosition = Vector3.zero;
         newObj.transform.localEulerAngles = new Vector3(15, 0, 0);
 
@@ -79,20 +75,18 @@ public class View
         _objs[idx] = newObj;
     }
 
-    //add camera for each object
+    //add camera for each object and assign render texture to it to output to the GUI 
     public void AddCamera(int idx)
     {
         Camera newCam = new GameObject("cam" + idx).AddComponent<Camera>();
         newCam.transform.position = new Vector3(250 * (idx + 1), 0, 0);
         newCam.targetTexture = Resources.Load<RenderTexture>("Materials/rendText" + idx.ToString());
-        //newCam.orthographic = true;
-        //newCam.orthographicSize = 1;
         newCam.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
 
         _cams[idx] = newCam;
     }
 
-    //adds l system caption underneath raw image
+    //adds l system information caption under raw images
     public void AddCaption(int idx)
     {
         //Add game objects to hold text captions
@@ -116,21 +110,20 @@ public class View
         _captions[idx] = textCaption;
     }
 
-    //adds the button to raw image
+    //adds the button to raw image for interaction
     public void AddImageButton(int idx)
     {
         Button btnImage = _rawImages[idx].gameObject.AddComponent<Button>();
 
         ColorBlock cb = btnImage.colors;
-        cb.highlightedColor = new Color(0.85f, 0.3f, 0.3f); //pink
+        cb.highlightedColor = new Color(0.85f, 0.3f, 0.3f); //red
         cb.pressedColor = new Color(0, 0, 0); //black
 
         btnImage.colors = cb;
-        btnImage.onClick.AddListener(() => OnClickImage(idx));
-
-
+        btnImage.onClick.AddListener(() => OnClickImage(idx)); 
     }
 
+    //assign a mesh to each obj
     public void AddMeshToObj(int idx)
     {
         //add meshfilters/renderers to gameobjects that will hold the meshes
@@ -142,6 +135,7 @@ public class View
     }
 
     //adds a pointlight for each object
+    //could do with improving the distance from object based on scale
     public void AddLight(int idx)
     {
         GameObject cam = GameObject.Find("cam" + idx);
@@ -156,6 +150,7 @@ public class View
         _lights[idx] = lightGameObject;
     }
 
+    //adds a disabled rotation script to each object
     public void AddRotationScript(int idx)
     {
         _rObjs[idx].AddComponent<ObjectControl>();
@@ -165,23 +160,20 @@ public class View
     #endregion GUI initialisation scripts
 
     //applies meshes to mfs
-    public void MeshesToMeshFilters(Mesh[] meshes)
+    //need to resolve some issues with infinitely large meshes/submeshes occasionally
+    public void MeshesToMeshFilters(Mesh[] _meshes)
     {
-        for (int i = 0; i < meshes.Length; i++)
+        for (int i = 0; i < _meshes.Length; i++)
         {
-            _meshFilters[i].mesh = meshes[i];
-            Vector3 bounds = meshes[i].bounds.size;
+            _meshFilters[i].mesh = _meshes[i];
+            Vector3 bounds = _meshes[i].bounds.size;
             float maxBound = Mathf.Max(bounds[0], bounds[1], bounds[2] / 2); //weight the z axis down a bit, as plane of view is x y
-
-
             maxBound = maxBound < 0.2 ? 0.2f : maxBound; //stops infinitely large scaling up
 
             if (float.IsInfinity(maxBound)) { Debug.Log("Issue with infinitely large dimensions, Mesh won't render"); }
 
             _meshFilters[i].transform.localScale = (1 / maxBound) * Vector3.one;
-            _objs[i].transform.localPosition = -meshes[i].bounds.center / maxBound;
-            //_lights[i].GetComponent<Light>().intensity = 3f / maxBound;
-
+            _objs[i].transform.localPosition = -_meshes[i].bounds.center / maxBound;
         }
     }
 
@@ -191,16 +183,20 @@ public class View
         _activeObj.GetComponentInChildren<MeshFilter>().mesh = stepMesh;
     }
 
-    //writes turtle instructions to text object
+    //writes turtle instructions to text object for animation
+
     public void InstructionsRewrite(string partialInstructions)
     {
         GameObject.Find("TextPartial").GetComponent<Text>().text = partialInstructions;
     }
 
+    //gets the number of the currently zoomed in object if so
     public int GetActiveNumber()
     {
         return int.Parse(_activeObj.name.Substring(4));
     }
+
+    //updates the GUI text boxes when evolve is clicked
     public void UpdateGuiText(RuleSet[] ruleSets, int generation)
     {
         for (int i = 0; i < _childCount; i++)
@@ -218,24 +214,24 @@ public class View
 
         Text textGeneration = GameObject.Find("TextGeneration").GetComponent<Text>();
         textGeneration.text = "GENERATION : " + generation.ToString();
-        inputSelection.text = "";
+        _inputSelection.text = "";
     }
 
-
-    public void OnClickImage(int rawSelectionNum)
+    //adds selection if user clicks on image
+    public void OnClickImage(int objNum)
     {
-        if (inputSelection.text == "") { inputSelection.text = rawSelectionNum.ToString(); }
-        else { inputSelection.text = inputSelection.text + " " + rawSelectionNum; }
-        string[] inputs = inputSelection.text.Split(' ').Reverse().Take(5).Reverse().ToArray(); //take the last 5 inputs
-        inputSelection.text = string.Join(" ", inputs);
-
+        if (_inputSelection.text == "") { _inputSelection.text = objNum.ToString(); }
+        else { _inputSelection.text = _inputSelection.text + " " + objNum; }
+        string[] inputs = _inputSelection.text.Split(' ').Reverse().Take(5).Reverse().ToArray(); //take the last 5 inputs
+        _inputSelection.text = string.Join(" ", inputs);
     }
 
-    public void OnClickFocus(int rawSelectionNum)
+    //zooms in on object if users clicks caption
+    public void OnClickFocus(int objNum)
     {
         _zoomed = true;
-        _activeCam = _cams[rawSelectionNum];
-        _activeObj = _rObjs[rawSelectionNum];
+        _activeCam = _cams[objNum];
+        _activeObj = _rObjs[objNum];
 
         _mainCam.gameObject.SetActive(false);
 
@@ -243,22 +239,22 @@ public class View
 
         _activeCam.gameObject.GetComponent<Camera>().targetTexture = null;
 
-
         _canvasInfo.SetParent(_activeCam.transform, true);
         _canvasInfo.gameObject.SetActive(true); //turn on the info HUD
 
         Text textInfo = GameObject.Find("TextObjectInfo").GetComponent<Text>();
-        textInfo.text = _captions[rawSelectionNum].text.ToUpper();
+        textInfo.text = _captions[objNum].text.ToUpper();
 
-        toggleRotationScript();
+        toggleZoomedScript(); //turns on the object control script
     }
 
-    public void toggleRotationScript()
+    public void toggleZoomedScript()
     {
         ObjectControl objectScript = _activeObj.GetComponent<ObjectControl>();
         objectScript.enabled = !objectScript.enabled;
     }
 
+    //determines right click action
     public void OnClickRightClick()
     {
         if (_zoomed)
@@ -267,18 +263,24 @@ public class View
         }
         else
         {
-            inputSelection.text = ""; //clear inputs if on main screen
+            _inputSelection.text = ""; //clear inputs if on main screen
         }
     }
+
+    //zooms out from object to main gui
     public void OnClickZoomOut()
     {
         _mainCam.gameObject.SetActive(true);
         _activeCam.gameObject.GetComponent<Camera>().targetTexture = _activeRenderTexture;
         _zoomed = false;
         _canvasInfo.gameObject.SetActive(false); //turn off the info HUD
-        toggleRotationScript();
-        Controller.counter = 0;
+        toggleZoomedScript();
     }
 
 }
+
+
+
+//Notes for improvements
+//Active object could be more elegant, using substring not ideal
 

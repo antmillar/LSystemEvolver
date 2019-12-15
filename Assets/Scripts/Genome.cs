@@ -19,7 +19,6 @@ public class Genome
     //constructor for random genotype by length
     public Genome(int length, string symbols, int randomSeed)
     {
-
         _baseTypeCount = symbols.Length;
         GenerateRandomGenome(length, randomSeed);
     }
