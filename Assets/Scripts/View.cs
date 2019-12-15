@@ -80,7 +80,7 @@ public class View
     {
         Camera newCam = new GameObject("cam" + idx).AddComponent<Camera>();
         newCam.transform.position = new Vector3(250 * (idx + 1), 0, 0);
-        newCam.targetTexture = Resources.Load<RenderTexture>("Materials/rendText" + idx.ToString());
+        newCam.targetTexture = Resources.Load<RenderTexture>("RenderTextures/rendText" + idx.ToString());
         newCam.transform.SetParent(GameObject.Find("Individuals").gameObject.GetComponent<Transform>(), true);
 
         _cams[idx] = newCam;

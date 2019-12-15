@@ -1,0 +1,27 @@
+Controls for the GUI
+
+Main GUI
+
+Left click on image to add to selection
+Left click on image caption to zoom in and inspect
+Right click to clear selection
+Space bar to reset the application to beginning
+Esc to quit in built version
+Click on Evolve to generate next generation
+
+Zoomed in view
+
+Rotation:
+
+Hold mouse wheel and move mouse
+Arrow keys
+
+Zoom:
+
+Mouse Scroll Wheel to zoom in/out
+w - zoom in
+s - zoom out
+r - toggle animation of mesh on / off
+t - complete the mesh (if animation toggled off)
+
+
