@@ -9,7 +9,7 @@ The L-systems take a similar approach to Richard Dawkins' [Biomorphs](http://www
 
 ## Application GUI
 
-[![App GUI](https://img.youtube.com/vi/nqRQhmPGNSU/1000.jpg)](https://www.youtube.com/watch?v=nqRQhmPGNSU)
+[![App GUI](https://img.youtube.com/vi/nqRQhmPGNSU/1.jpg)](https://www.youtube.com/watch?v=nqRQhmPGNSU)
 
 ## Examples of Generated Forms
 
