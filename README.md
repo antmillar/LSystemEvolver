@@ -7,7 +7,7 @@ The L-systems take a similar approach to Richard Dawkins' [Biomorphs] (http://ww
 
 
 
-##Application GUI
+## Application GUI
 
 [insert picture]
 
