@@ -13,5 +13,5 @@ The L-systems take a similar approach to Richard Dawkins' [Biomorphs](http://www
 
 ## Examples of Generated Forms
 
-![Generated Results](images/results.png)
+![Generated Results](images/Results.png)
 
